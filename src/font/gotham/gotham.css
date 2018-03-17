@@ -1,0 +1,64 @@
+@font-face {
+    font-family: Gotham;
+	font-weight: 400;
+    src: url(gotham-normal.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 400;
+	font-style: italic;
+    src: url(gotham-normal-italic.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 100;
+    src: url(gotham-lightness.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 100;
+	font-style: italic;
+    src: url(gotham-lightness-italic.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 200;
+    src: url(gotham-light.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 200;
+	font-style: italic;
+    src: url(gotham-light-italic.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 700;
+    src: url(gotham-bold.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 700;
+	font-style: italic;
+    src: url(gotham-bold-italic.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 900;
+    src: url(gotham-bolder.ttf);
+}
+
+@font-face {
+    font-family: Gotham;
+	font-weight: 900;
+	font-style: italic;
+    src: url(gotham-bolder-italic.ttf);
+}

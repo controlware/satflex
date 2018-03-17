@@ -8,9 +8,11 @@ import "./lib/bootstrap-4.0.0/bootstrap.js";
 import Menu from "./com/Menu.js";
 import {MessageBoxEmitter, MessageBoxModal} from "./com/MessageBox.js";
 
+import Produto from "./view/Produto.js";
 import Venda from "./view/Venda.js";
 
-//import "./css/index.css";
+import "./css/index.css";
+import "./font/gotham/gotham.css";
 
 class App extends React.Component {
 
@@ -32,7 +34,8 @@ class App extends React.Component {
 						<div>
 							<Menu />
 							<div id="viewContainer">
-								<Route exact path="/" component={Venda} />
+								<Route path="/venda" component={Venda} />
+								<Route path="/produto" component={Produto} />
 							</div>
 						</div>
 					</Route>
