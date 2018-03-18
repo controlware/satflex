@@ -29,7 +29,10 @@ function createWindow(){
 		fullscreen: true,
 		height: screenSize.height,
 		resizable: false,
-		width: screenSize.width
+		width: screenSize.width,
+		webPreferences: {
+			preload: __dirname + "/preload.js"
+		}
 	});
 
 	browserWindow.loadURL("http://localhost:3000");
