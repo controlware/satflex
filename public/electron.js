@@ -1,6 +1,7 @@
 const electron = require("electron"); // Modulo principal do Electron
 const {app} = electron; // Modulo que controla vida da aplicacao
 const {BrowserWindow} = electron; // Modulo que cria a janela do browser nativo
+const isDev = require("electron-is-dev"); // Modulo que verifica se esta executando a versao de desenvolvimento
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -21,9 +22,9 @@ app.on("activate", () => {
 });
 
 function createWindow(){
-	var path = require("path");
+	let path = require("path");
 
-	var screenSize = electron.screen.getPrimaryDisplay().size;
+	let screenSize = electron.screen.getPrimaryDisplay().size;
 
 	browserWindow = new BrowserWindow({
 		fullscreen: true,
@@ -31,11 +32,11 @@ function createWindow(){
 		resizable: false,
 		width: screenSize.width,
 		webPreferences: {
-			preload: __dirname + "/preload.js"
+			preload: app.getAppPath() + "/src/preload.js"
 		}
 	});
 
-	browserWindow.loadURL("http://localhost:3000");
+	browserWindow.loadURL(isDev ? "http://localhost:3000" : `file://${path.join(__dirname, '../build/index.html')}`);
 
 	browserWindow.on("closed", () => {
 		browserWindow = null;

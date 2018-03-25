@@ -5,7 +5,7 @@ import {EventEmitter} from "events";
 import Button from "./Button.js";
 
 export class MessageBoxEmitter extends EventEmitter {
-	
+
 	constructor(){
 		super();
 
@@ -41,13 +41,13 @@ export class MessageBoxEmitter extends EventEmitter {
 		}
 		return this.element;
 	}
-	
+
 	// Remove um metodo a ser executado quando houver uma mudanca
 	removeChangeListener(callback){
 		this.removeListener("change", callback);
 	}
 
-	// Escone a caixa de mensagem
+	// Esconde a caixa de mensagem
 	hide(){
 		this.data.visible = false;
 		this.commitChange();
@@ -64,8 +64,8 @@ export class MessageBoxEmitter extends EventEmitter {
 			buttons: [
 				{
 					text: "Ok",
-					className: "btn-primary",
-					icon: null,
+					color: "blue",
+					icon: "thumbs-up",
 					onClick: () => {
 						this.hide();
 					}
@@ -115,12 +115,12 @@ export class MessageBoxModal extends React.Component {
 				<div className={"modal-dialog modal-" + this.state.size}>
 					<div className="modal-content">
 						<div className="modal-header">
-							<h3 className="modal-title">{this.state.title}</h3>
+							<h4 className="modal-title">{this.state.title}</h4>
 						</div>
-						<div className="modal-body">{this.state.text}</div>
+						<div className="modal-body" dangerouslySetInnerHTML={{__html: this.state.text}}></div>
 						<div className="modal-footer">
 							{this.state.buttons.map(function(button, i){
-								return <Button key={i} className={button.className} text={button.text} icon={button.icon} onClick={button.onClick} />
+								return <Button key={i} color={button.color} text={button.text} icon={button.icon} onClick={button.onClick} />
 							})}
 						</div>
 					</div>

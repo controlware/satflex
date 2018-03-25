@@ -17,7 +17,7 @@ export default class Icon extends React.Component {
 		}
 
 		return (
-			<span className={className.join(" ")} onClick={this.props.onClick} style={style}></span>
+			<span {...this.props} className={className.join(" ")} style={style}></span>
 		);
 	}
 }

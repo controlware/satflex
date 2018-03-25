@@ -1,22 +1,55 @@
 {
-  "name": "satflex2",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "dns": "^0.2.2",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "react-scripts": "1.1.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "electron": "electron ."
-  },
-  "main": "src/electron.js",
-  "devDependencies": {
-    "electron": "^1.8.4"
-  }
+	"name": "SAT-Flex",
+	"author": "Murilo Strohmeier Feres",
+	"description": "A solução fácil que atende a Legislação Fiscal SAT.",
+	"version": "2.0.0",
+	"private": true,
+	"dependencies": {
+		"ajv": "^6.3.0",
+		"ajv-keywords": "^3.1.0",
+		"bootstrap": "^4.0.0",
+		"concurrently": "^3.5.1",
+		"dns": "^0.2.2",
+		"electron-is-dev": "^0.3.0",
+		"floatthead": "^2.1.1",
+		"jquery": "^3.3.1",
+		"pg": "^7.4.1",
+		"pg-native": "^2.2.0",
+		"popper.js": "^1.14.1",
+		"react": "^16.2.0",
+		"react-bootstrap": "^0.32.1",
+		"react-color": "^2.14.0",
+		"react-dom": "^16.2.0",
+		"react-router-dom": "^4.2.2",
+		"react-scripts": "1.1.1",
+		"react-select": "^1.2.1",
+		"string-mask": "^0.3.0",
+		"tether": "^1.4.3",
+		"wait-on": "^2.1.0"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test --env=jsdom",
+		"eject": "react-scripts eject",
+		"electron-dev": "concurrently \"BROWSER=none yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+		"electron-pack": "build --em.main=build/electron.js --mac",
+		"preelectron-pack": "yarn build"
+	},
+	"main": "public/electron.js",
+	"homepage": "./",
+	"devDependencies": {
+		"electron": "^1.8.4",
+		"electron-packager": "^11.1.0"
+	},
+	"build": {
+		"appId": "com.example.electron-cra",
+		"files": [
+			"build/**/*",
+			"node_modules/**/*"
+		],
+		"directories": {
+			"buildResources": "assets"
+		}
+	}
 }

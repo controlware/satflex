@@ -15,6 +15,23 @@ export default class Menu extends React.Component {
 }
 
 class MenuList extends React.Component {
+
+	constructor(props){
+		super(props)
+
+		this.state = {
+			activeItem: "Vender"
+		};
+
+		this.changeActiveItem = this.changeActiveItem.bind(this);
+	}
+
+	changeActiveItem(text){
+		this.setState({
+			activeItem: text
+		});
+	}
+
 	listItem(){
 		return [
 			{
@@ -25,37 +42,44 @@ class MenuList extends React.Component {
 			{
 				text: "Notas fiscais",
 				icon: "clipboard",
-				link: "/notafiscal"
+				link: "/notafiscal",
+				active: false
 			},
 			{
 				text: "Cadastros",
 				icon: "stack",
-				link: "/produto"
+				link: "/produto",
+				active: false
 			},
 			{
 				text: "Relatórios",
 				icon: "chart-line",
-				link: "/relatorio"
+				link: "/relatorio",
+				active: false
 			},
 			{
 				text: "Contador",
 				icon: "suitcase",
-				link: "/contador"
+				link: "/contador",
+				active: false
 			},
 			{
 				text: "Configurações",
 				icon: "cogs",
-				link: "/configuracao"
+				link: "/configuracao",
+				active: false
 			},
 			{
 				text: "Suporte",
 				icon: "help",
-				link: "/suporte"
+				link: "/suporte",
+				active: false
 			},
 			{
 				text: "Sair",
 				icon: "exit",
-				link: "/sair"
+				link: "/sair",
+				active: false
 			},
 		]
 	}
@@ -63,8 +87,8 @@ class MenuList extends React.Component {
 	render(){
 		return <div className="menu-list">
 			<ul>
-				{this.listItem().map(function(item, i){
-					return <MenuListItem key={i} pKey={i} text={item.text} icon={item.icon} link={item.link} />
+				{this.listItem().map((item, i) => {
+					return <MenuListItem key={i} pKey={i} text={item.text} icon={item.icon} link={item.link} activeItem={this.state.activeItem} changeActiveItem={this.changeActiveItem} />
 				})}
 			</ul>
 		</div>
@@ -72,14 +96,28 @@ class MenuList extends React.Component {
 }
 
 class MenuListItem extends React.Component {
+
+	constructor(props){
+		super(props);
+
+		this.onClick = this.onClick.bind(this);
+	}
+
+	onClick(){
+		this.props.changeActiveItem(this.props.text);
+	}
+
 	render(){
+		let className = null;
+		if(this.props.activeItem === this.props.text){
+			className = "active";
+		}
+
 		return (
-			<li>
-				<Link to={this.props.link}>
-					<Icon name={this.props.icon} />
-					<span>{this.props.text}</span>
-				</Link>
-			</li>
+			<Link to={this.props.link} onClick={this.onClick} className={className}>
+				<Icon name={this.props.icon} />
+				<span>{this.props.text}</span>
+			</Link>
 		);
 	}
 }

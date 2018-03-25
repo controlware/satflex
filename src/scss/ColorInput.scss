@@ -1,0 +1,13 @@
+.swatches-picker {
+	position: absolute;
+	z-index: 1;
+
+	& > div > div {
+		height: 420px;
+
+		& > div {
+			height: 420px !important;
+			overflow-y: hidden !important;
+		}
+	}
+}

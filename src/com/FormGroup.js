@@ -6,18 +6,26 @@ import "../css/FormGroup.css";
 export default class FormGroup extends React.Component {
 
 	render(){
-		var className = [
-			"form-group"
-		];
+		let props = Object.assign({}, this.props);
 
-		if(this.props.className){
-			className.push(this.props.className);
+		let className = ["form-group"];
+		if(props.className){
+			className.push(props.className);
 		}
+
+		if(props.InformarValor){
+			if(props.InformarValor.title === undefined){
+				props.InformarValor.title = this.props.label;
+			}
+		}
+		
+		props.className = props.inputClassName;
+		delete props.inputClassName;
 
 		return (
 			<div className={className.join(" ")}>
 				{["checkbox"].indexOf(this.props.type) > -1 ? null : <Label htmlFor={this.props.id}>{this.props.label}</Label>}
-				<FormControl {...this.props} />
+				<FormControl {...props} />
 			</div>
 		)
 	}

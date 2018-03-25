@@ -1,0 +1,91 @@
+#informarvalor {
+	.modal-content {
+		width: 350px;
+
+		.modal-header {
+			font-size: 20px;
+		}
+
+		.modal-body {
+			padding-bottom: 10px;
+			padding-left: 25px;
+			padding-right: 25px;
+			padding-top: 0px;
+
+			#informarvalor-valor {
+				border: none;
+				height: 0px;
+				margin: 0px;
+				opacity: 0;
+				padding: 0px;
+			}
+
+			#informarvalor-display-parent {
+				position: relative;
+				margin: -15px -10px 10px -10px;
+
+				#informarvalor-display {
+					background-color: rgba(100, 100, 100, 0.1);
+					font-size: 42px;
+					height: 80px;
+					padding-top: 14px;
+					text-align: center;
+
+					&.informarvalor-display-money:before {
+						content: "R$";
+						font-size: 20px;
+						left: -4px;
+						position: relative;
+						top: -13px;
+					}
+
+					&.informarvalor-display-sm {
+						font-size: 28px;
+						padding-top: 24px;
+
+						&.informarvalor-display-money:before {
+							content: "R$";
+							font-size: 16px;
+							top: -7px;
+						}
+					}
+				}
+
+				#informarvalor-backspace {
+					border: 2px solid rgba(0, 0, 0, 0.5);
+					border-radius: 5px;
+					color: #000;
+					font-size: 16px;
+					position: absolute;
+					right: 10px;
+					top: 30px;
+
+					.glyphicon-expand {
+						color: #666;
+						font-size: 20px;
+						font-weight: 100;
+						transform: rotate(180deg);
+					}
+				}
+			}
+
+			#informarvalor-keyboard {
+				& > div {
+					padding: 5px;
+
+					.btn {
+						height: 82px;
+
+						span {
+							font-size: 24px;
+						}
+
+						.icon {
+							font-size: 20px;
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -7,7 +7,10 @@ import "./lib/bootstrap-4.0.0/bootstrap.js";
 
 import Menu from "./com/Menu.js";
 import {MessageBoxEmitter, MessageBoxModal} from "./com/MessageBox.js";
+import {FastMessageEmitter, FastMessageModal} from "./com/FastMessage.js";
+import {InformarValorEmitter, InformarValorModal} from "./com/InformarValor.js";
 
+import Categoria from "./view/Categoria.js";
 import Produto from "./view/Produto.js";
 import Venda from "./view/Venda.js";
 
@@ -20,9 +23,13 @@ class App extends React.Component {
 		super(props);
 
 		window.MessageBox = new MessageBoxEmitter();
+		window.FastMessage = new FastMessageEmitter();
+		window.InformarValor = new InformarValorEmitter();
 
 		this.state = {
-			MessageBox: window.MessageBox
+			MessageBox: window.MessageBox,
+			FastMessage: window.FastMessage,
+			InformarValor: window.InformarValor
 		};
 	}
 
@@ -40,22 +47,17 @@ class App extends React.Component {
 							<div id="viewContainer">
 								<Route path="/venda" component={Venda} />
 								<Route path="/produto" component={Produto} />
+								<Route path="/categoria" component={Categoria} />
 							</div>
 						</div>
 					</Route>
 				</Router>
 				<MessageBoxModal MessageBoxEmitter={this.state.MessageBox} />
+				<FastMessageModal FastMessageEmitter={this.state.FastMessage} />
+				<InformarValorModal InformarValorEmitter={this.state.InformarValor} />
 			</div>
 		)
 	}
 }
 
-class Home extends React.Component {
-	render(){
-		return <div>
-			<h1 className='text-center'>Home</h1>
-		</div>
-	}
-}
-
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App />, document.getElementById("root"));

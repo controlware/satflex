@@ -1,64 +1,86 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import $ from "jquery";
+
+import ColorInput from "./ColorInput.js";
 import Select from "./Select.js";
+
+import "../css/FormControl.css";
 
 export default class FormControl extends React.Component {
 
 	constructor(props){
 		super(props);
 
-		this.currValue = (props.value ? props.value : props.defaultValue);
+		this.onFocus = this.onFocus.bind(this);
 	}
 
 	componentDidMount(){
 		this.element = ReactDOM.findDOMNode(this);
 	}
 
-	componentWillReceiveProps(nextProps){
-		if($(this.element).attr("currValue") !== undefined){
-			this.currValue = $(this.element).attr("currValue");
-			$(this.element).removeAttr("currValue");
-		}else{
-			this.currValue = nextProps.value;
-		}
-
-		if(this.currValue !== $(this.element).val()){
-			$(this.element).val(this.currValue);
-			if($(this.element).val() !== this.currValue){
-				$(this.element).attr("unloadedValue", this.currValue);
+	onFocus(){
+		if(this.props.InformarValor){
+			let settings = this.props.InformarValor;
+			if(settings.success === undefined){
+				settings.success = (valor) => {
+					$(this.element).val(valor);
+					if(this.props.onChange){
+						let event = {target: {id: this.props.id, value: valor}};
+						this.props.onChange(event);
+					}
+				}
 			}
-
-			if(nextProps.onChange){
-				let event = document.createEvent("HTMLEvents");
-				event.initEvent("change", false, true);
-				this.element.dispatchEvent(event);
-				nextProps.onChange(event);
-			}
+			window.InformarValor.show(settings);
 		}
 	}
 
 	render(){
-		switch(this.props.type){
-			// Se o componento for do tipo Checkbox
+		let props = Object.assign({}, this.props);
+
+		delete props.InformarValor;
+
+		let value = props.value;
+		if(value === undefined || value === null){
+			value = "";
+		}
+
+		let className = (props.className ? props.className.split(" ") : []);
+		className.push("form-control");
+		className = className.join(" ");
+
+		props.className = className;
+		props.value = value;
+		props.onFocus = this.onFocus;
+
+		switch(props.type){
+			// Se o componente for do tipo Checkbox
 			case "checkbox":
 				return (
 					<div className="form-check">
-						<input type="checkbox" id={this.props.id} className="form-check-input" defaultValue={this.props.defaultValue} disabled={this.props.disabled} onChange={this.props.onChange} />
+						<input type="checkbox" id={this.props.id} className="form-check-input" checked={value === "S"} defaultValue={this.props.defaultValue} disabled={this.props.disabled} onChange={this.props.onChange} onClick={this.props.onClick} />
 						<label className="form-check-label" htmlFor={this.props.id}>{this.props.label}</label>
 					</div>
 				)
 
+			// Se o componente for do tipo Color
+			case "color":
+				return (
+					<ColorInput {...props} />
+				)
+
 			// Se o componente for do tipo Select
 			case "select":
+				delete props.type;
+
 				return (
-					<Select id={this.props.id} className="form-control" options={this.props.options} defaultValue={this.props.defaultValue} disabled={this.props.disabled} onChange={this.props.onChange} dbtable={this.props.dbtable} dbcolumn={this.props.dbcolumn} dbparent={this.props.dbparent} dbfilter={this.props.dbfilter} />
+					<Select {...props} />
 				)
 
 			// Se o componente for algum input padrao que nao necessita ser personalizado
 			default:
 				return (
-					<input type={this.props.type} id={this.props.id} className="form-control" placeholder={this.props.placeholder} defaultValue={this.props.defaultValue} disabled={this.props.disabled} onChange={this.props.onChange} onKeyPress={this.props.onKeyPress} />
+					<input {...props} />
 				)
 		}
 	}

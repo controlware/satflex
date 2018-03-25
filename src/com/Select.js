@@ -2,52 +2,38 @@ import React from "react";
 import ReactDOM from "react-dom";
 import $ from "jquery";
 
+import ReactSelect from "react-select";
+import "react-select/dist/react-select.css";
+
+import {defaultMessageBoxError} from "../def/function.js";
+
 export default class Select extends React.Component {
 
 	constructor(props){
 		super(props);
 
-		this.getDBOptions = this.getDBOptions.bind(this);
-
 		this.state = {
-			options: (props.options === undefined ? [] : props.options)
+			options: (props.options === undefined ? [] : props.options),
+			value: props.value
 		};
 
-		this.currValue = (props.value ? props.value : props.defaultValue);
+		this.getDBOptions = this.getDBOptions.bind(this);
+		this.onChange = this.onChange.bind(this);
 	}
 
 	componentDidMount(){
 		this.element = ReactDOM.findDOMNode(this);
-
-		$(this.element).bind("change", () => {
-			$(this.element).attr("currValue", $(this.element).val());
-			this.forceUpdate();
-		});
-
-		if(this.props.dbparent){
-			let parent = document.getElementById(this.props.dbparent);
-			$(parent).bind("change", () => {
-				this.getDBOptions();
-			}).on("updateChildrenOptions", () => {
-				this.getDBOptions();
-			});
-		}
-
 		this.getDBOptions();
 	}
 
 	componentWillReceiveProps(nextProps){
 		this.getDBOptions(nextProps);
-	}
 
-	drawOption(option, i){
-		if(typeof option !== "object"){
-			option = {value: option};
+		if(nextProps.value !== this.props.value){
+			this.setState({
+				value: nextProps.value
+			});
 		}
-		if(typeof option.text === "undefined"){
-			option.text = option.value;
-		}
-		return <option key={i} value={option.value}>{option.text}</option>
 	}
 
 	getDBOptions(props){
@@ -74,31 +60,37 @@ export default class Select extends React.Component {
 			this.ajaxDBOptions.abort();
 			this.ajaxDBOptions = null;
 		}
-		/*
-		this.ajaxDBOptions = Backend({
-			name: "dbcontrol/select",
-			data: {
-				dbtable: dbtable,
-				dbcolumn:dbcolumn,
-				dbfilter: dbfilter
-			},
-			complete: () => {
-				this.ajaxDBOptions = null;
-			},
-			success: (result) => {
-				var options = result.options;
-				options.unshift({"": ""});
-				if(this.state.options !== options){
-					this.setState({
-						options: options
-					});
-				}
-			},
-			error: (message) => {
-				alert(message);
+
+		let query = "SELECT id"+dbtable+", "+dbcolumn+" FROM "+dbtable+" ORDER BY 2";
+
+		this.props.pool.query({text: query, rowMode: "array"}, (err, res) => {
+			if(err){
+				defaultMessageBoxError(err.message);
+				return false;
+			}
+			let options = [];
+			for(let i in res.rows){
+				let row = res.rows[i];
+				options.push({value: row[0], label: row[1]});
+			}
+			if(this.state.options !== options){
+				this.setState({
+					options: options
+				});
 			}
 		});
-		*/
+	}
+
+	onChange(option){
+		let value = (option ? option.value : null);
+		this.setState({
+			value: value
+		});
+
+		if(this.props.onChange){
+			let event = {target: {id: this.props.id, value: value}};
+			this.props.onChange(event);
+		}
 	}
 
 	render(){
@@ -112,8 +104,7 @@ export default class Select extends React.Component {
 				// Estrutura padrao das opcoes do Select
 				optionsAux.push({
 					value: value,
-					text: options[value],
-					selected: false
+					label: options[value]
 				});
 			}
 			options = optionsAux;
@@ -124,16 +115,18 @@ export default class Select extends React.Component {
 			options = [];
 		}
 
-		// Copia as propriedes para uma variavel para pode remover algumas
-		// propriedades que nao devem ficar disponiveis no elemento
-		let props = Object.assign({}, this.props);
-		delete props.options;
-
 		return (
-			<select {...props} value={$(this.element).attr("currValue")}>
-				{options.map(this.drawOption)}
-			</select>
-		)
+			<ReactSelect
+				clearable={false}
+				disabled={this.props.disabled}
+				if={this.props.id}
+				onChange={this.onChange}
+				options={options}
+				placeholder=""
+				searchable={false}
+				value={this.state.value}
+			/>
+		);
 	}
 
 }

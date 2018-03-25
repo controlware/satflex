@@ -142,9 +142,9 @@ export default class DataGrid extends React.Component {
 		// Atualiza a ordem dos dados
 		var data = this.state.data;
 		data.sort(function(a, b){
-			if(a[hIndex]["text"] < b[hIndex]["text"])
+			if(a["data"][hIndex]["text"] < b["data"][hIndex]["text"])
 				return (hOrder === 1 ? -1 : 1);
-			if(a[hIndex]["text"] > b[hIndex]["text"])
+			if(a["data"][hIndex]["text"] > b["data"][hIndex]["text"])
 				return (hOrder === 1 ? 1 : -1);
 			return 0;
 		});
@@ -289,12 +289,9 @@ export default class DataGrid extends React.Component {
 		header = (header === undefined ? this.state.header : header);
 		data = (data === undefined ? this.state.data : data);
 
-		// Declare variaveis multiuso
-		var cell, i = null;
-
 		// Trata os dados do cabecalho
-		for(i in header){
-			cell = header[i];
+		for(let i in header){
+			let cell = header[i];
 
 			if(typeof cell === "string"){
 				cell = {
@@ -314,9 +311,19 @@ export default class DataGrid extends React.Component {
 
 		// Trata os dados principais da grade
 		var key = 0;
-		for(i in data){
-			for(var j in data[i]){
-				cell = data[i][j];
+		for(let i in data){
+			let row = data[i];
+
+			if($.isArray(row)){
+				row = {
+					data: row
+				};
+			}
+
+			data[i] = row;
+
+			for(let j in data[i].data){
+				let cell = data[i].data[j];
 
 				if(typeof cell === "string"){
 					cell = {
@@ -331,7 +338,7 @@ export default class DataGrid extends React.Component {
 					width: null
 				}, cell);
 
-				data[i][j] = cell;
+				data[i].data[j] = cell;
 			}
 		}
 
@@ -376,8 +383,8 @@ class DataGridBodyCell extends React.Component {
 class DataGridBodyRow extends React.Component {
 	render(){
 		return (
-			<tr>
-				{this.props.row.map(function(cell, i){
+			<tr onClick={this.props.row.onClick}>
+				{this.props.row.data.map(function(cell, i){
 					return <DataGridBodyCell cell={cell} key={i} />
 				})}
 			</tr>

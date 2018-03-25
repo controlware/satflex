@@ -1,0 +1,48 @@
+.form-control, .Select-control {
+	border-color: #999;
+	border-radius: 3px;
+	box-shadow: inset 0px 1px 1px rgba(0,0,0,.075);
+	font-size: 18px;
+	height: 52px !important;
+	-webkit-appearance: none;
+
+	&::placeholder, &::-webkit-input-placeholder {
+		transition: all linear 100;
+	}
+
+	&:focus {
+		box-shadow: inset 0px 1px 1px rgba(0,0,0,.075), 0px 0px 8px rgba(102,175,233,.6);
+		outline: 0;
+
+		&::placeholder, &::-webkit-input-placeholder {
+			color: #ddd;
+		}
+	}
+}
+
+.Select {
+	.Select-value-label {
+		line-height: 52px;
+	}
+
+	.Select-option {
+		padding-bottom: 15px;
+		padding-top: 15px;
+	}
+}
+
+.form-check {
+	input {
+		position: relative;
+		top: -2px;
+	    zoom: 2.2;
+	}
+
+	label {
+		font-size: 17px;
+		left: 5px;
+		position: relative;
+		top: -9px;
+		user-select: none;
+	}
+}
