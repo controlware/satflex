@@ -12,13 +12,17 @@ export default class FormGroup extends React.Component {
 		if(props.className){
 			className.push(props.className);
 		}
+		if(props.warning){
+			className.push("form-group-warning");
+			delete props.warning;
+		}
 
 		if(props.InformarValor){
 			if(props.InformarValor.title === undefined){
 				props.InformarValor.title = this.props.label;
 			}
 		}
-		
+
 		props.className = props.inputClassName;
 		delete props.inputClassName;
 

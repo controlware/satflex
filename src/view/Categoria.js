@@ -38,7 +38,7 @@ export default class Categoria extends React.Component {
 		this.onKeyUpPesquisa = this.onKeyUpPesquisa.bind(this);
 		this.pesquisaLimpar = this.pesquisaLimpar.bind(this);
 
-		this.pool = new Pool();
+		this.Pool = new Pool();
 	}
 
 	beforeCloseModal(){
@@ -61,7 +61,7 @@ export default class Categoria extends React.Component {
 	}
 
 	componentWillUnmount(){
-		this.pool.end();
+		this.Pool.end();
 	}
 
 	loadDataGrid(){
@@ -75,7 +75,7 @@ export default class Categoria extends React.Component {
 			"ORDER BY categoria.descricao"
 		].join(" ");
 
-		this.pool.query(query, [this.state.pesquisa], (err, res) => {
+		this.Pool.query(query, [this.state.pesquisa], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -164,7 +164,7 @@ export default class Categoria extends React.Component {
 					</Col>
 				</Row>
 				<DataGrid header={dataGridHeader} data={this.state.dataGrid} />
-				<ModalCategoria pool={this.pool} show={this.state.showModalCategoria} idcategoria={this.state.idcategoria} beforeClose={this.beforeCloseModal} />
+				<ModalCategoria Pool={this.Pool} show={this.state.showModalCategoria} idcategoria={this.state.idcategoria} beforeClose={this.beforeCloseModal} />
 			</Content>
 		)
 	}

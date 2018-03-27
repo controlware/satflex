@@ -47,9 +47,12 @@ export default class FormControl extends React.Component {
 
 		let className = (props.className ? props.className.split(" ") : []);
 		className.push("form-control");
-		className = className.join(" ");
 
-		props.className = className;
+		if(props.size){
+			className.push("form-control-" + props.size);
+		}
+
+		props.className = className.join(" ");
 		props.value = value;
 		props.onFocus = this.onFocus;
 

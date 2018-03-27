@@ -45,7 +45,7 @@ class App extends React.Component {
 						<div>
 							<Menu />
 							<div id="viewContainer">
-								<Route path="/venda" component={Venda} />
+								<Route exact path="/" component={Venda} />
 								<Route path="/produto" component={Produto} />
 								<Route path="/categoria" component={Categoria} />
 							</div>

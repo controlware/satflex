@@ -37,7 +37,7 @@ class MenuList extends React.Component {
 			{
 				text: "Vender",
 				icon: "shop",
-				link: "/venda"
+				link: "/"
 			},
 			{
 				text: "Notas fiscais",

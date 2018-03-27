@@ -8,10 +8,13 @@ import Col from "../com/Col.js";
 import Content from "../com/Content.js";
 import FormControl from "../com/FormControl.js";
 import Icon from "../com/Icon.js";
-import PainelRapidoPoucosProdutos from "../com/PainelRapidoPoucosProdutos.js";
+import PainelRapido from "../com/PainelRapido.js";
 import Row from "../com/Row.js";
+import VendaAplicarAcrescimo from "../com/VendaAplicarAcrescimo.js";
+import VendaAplicarDesconto from "../com/VendaAplicarDesconto.js";
 import VendaDetalhe from "../com/VendaDetalhe.js";
 import VendaEditarProduto from "../com/VendaEditarProduto.js";
+import VendaFinalizacao from "../com/VendaFinalizacao.js";
 
 import {validarCPF, validarCNPJ} from "../def/function.js";
 
@@ -28,14 +31,23 @@ export default class Venda extends React.Component {
 			documentoproduto: documentoproduto, // Produto atual que esta sendo editado
 			listaDocumentoProduto: [], // Lista de produtos que compoe a venda
 			pesquisa: "", // Conteudo da pesquisa
-			showEditarProduto: false // Se deve exibir o modal da edicao de produtos
+			pesquisaEfetiva: "", // O real termo sendo pesquisado
+			showEditarProduto: false, // Se deve exibir o modal da edicao de produtos
+			showVendaFinalizacao: false, // Se deve exibir o modal da finalizacao de venda
+			showVendaAplicarDesconto: false, // Se deve exibir o modal da aplicacao de desconto
+			showVendaAplicarAcrescimo: false // Se deve exibir o modal da aplicacao de acrescimo
 		};
 
+		this.abrirFinalizacao = this.abrirFinalizacao.bind(this);
+		this.animarProdutoPainel = this.animarProdutoPainel.bind(this);
+		this.aplicarAcrescimo = this.aplicarAcrescimo.bind(this);
+		this.aplicarDesconto = this.aplicarDesconto.bind(this);
 		this.atualizarDocumentoProduto = this.atualizarDocumentoProduto.bind(this);
 		this.aumentarQuantidade = this.aumentarQuantidade.bind(this);
 		this.cancelarVendaAtual = this.cancelarVendaAtual.bind(this);
 		this.diminuirQuantidade = this.diminuirQuantidade.bind(this);
 		this.editarProduto = this.editarProduto.bind(this);
+		this.incluirDezPorcento = this.incluirDezPorcento.bind(this);
 		this.incluirProduto = this.incluirProduto.bind(this);
 		this.informarCPF = this.informarCPF.bind(this);
 		this.onChangePesquisa = this.onChangePesquisa.bind(this);
@@ -44,7 +56,65 @@ export default class Venda extends React.Component {
 		this.pesquisaLimpar = this.pesquisaLimpar.bind(this);
 		this.removerProduto = this.removerProduto.bind(this);
 
-		this.pool = new Pool();
+		this.Pool = new Pool();
+	}
+
+	abrirFinalizacao(){
+		this.setState({
+			showVendaFinalizacao: true
+		});
+	}
+
+	animarProdutoPainel(element){
+
+	}
+
+	aplicarAcrescimo(totalbruto, totalacrescimo){
+		if(isNaN(totalbruto) || isNaN(totalacrescimo)){
+			this.setState({
+				showVendaAplicarAcrescimo: true
+			});
+			return;
+		}
+
+		let listaDocumentoProduto = this.state.listaDocumentoProduto;
+
+		listaDocumentoProduto.forEach((documentoproduto) => {
+			let totalproduto = documentoproduto.preco * documentoproduto.quantidade;
+			let acrescimoproduto  = totalacrescimo * (totalproduto / totalbruto);
+			let acrescimounitario = acrescimoproduto / documentoproduto.quantidade;
+			documentoproduto.acrescimounitario = acrescimounitario;
+			this.calcularDocumentoProduto(documentoproduto);
+		});
+
+		this.setState({
+			listaDocumentoProduto: listaDocumentoProduto,
+			showVendaAplicarAcrescimo: false
+		});
+	}
+
+	aplicarDesconto(totalbruto, totaldesconto){
+		if(isNaN(totalbruto) || isNaN(totaldesconto)){
+			this.setState({
+				showVendaAplicarDesconto: true
+			});
+			return;
+		}
+
+		let listaDocumentoProduto = this.state.listaDocumentoProduto;
+
+		listaDocumentoProduto.forEach((documentoproduto) => {
+			let totalproduto = documentoproduto.preco * documentoproduto.quantidade;
+			let descontoproduto = totaldesconto * (totalproduto / totalbruto);
+			let descontounitario = descontoproduto / documentoproduto.quantidade;
+			documentoproduto.descontounitario = descontounitario;
+			this.calcularDocumentoProduto(documentoproduto);
+		});
+
+		this.setState({
+			listaDocumentoProduto: listaDocumentoProduto,
+			showVendaAplicarDesconto: false
+		});
 	}
 
 	atualizarDocumentoProduto(documentoproduto){
@@ -108,7 +178,7 @@ export default class Venda extends React.Component {
 	}
 
 	componentWillUnmount(){
-		this.pool.end();
+		this.Pool.end();
 	}
 
 	criarObjetoDocumentoProduto(documentoproduto){
@@ -149,7 +219,24 @@ export default class Venda extends React.Component {
 		});
 	}
 
-	incluirProduto(produto){
+	finalizarVenda(documentopagamentos, totaltroco){
+		
+	}
+
+	incluirDezPorcento(){
+		let listaDocumentoProduto = this.state.listaDocumentoProduto;
+
+		listaDocumentoProduto.forEach((documentoproduto) => {
+			documentoproduto.acrescimounitario = documentoproduto.preco * 0.1;
+			this.calcularDocumentoProduto(documentoproduto);
+		});
+
+		this.setState({
+			listaDocumentoProduto: listaDocumentoProduto
+		});
+	}
+
+	incluirProduto(produto, event){
 		produto = Object.assign({}, produto);
 
 		if(produto.precovariavel === "S"){
@@ -159,7 +246,7 @@ export default class Venda extends React.Component {
 				decimal: 2,
 				success: (valor) => {
 					produto.preco = valor.toFloat();
-					this.incluirProdutoDefinitivo(produto);
+					this.incluirProdutoDefinitivo(produto, event);
 				}
 			});
 		}else if(produto.balanca === "S"){
@@ -168,15 +255,15 @@ export default class Venda extends React.Component {
 				decimal: 3,
 				success: (valor) => {
 					produto.quantidade = valor.toFloat();
-					this.incluirProdutoDefinitivo(produto);
+					this.incluirProdutoDefinitivo(produto, event);
 				}
 			});
 		}else{
-			this.incluirProdutoDefinitivo(produto);
+			this.incluirProdutoDefinitivo(produto, event);
 		}
 	}
 
-	incluirProdutoDefinitivo(produto){
+	incluirProdutoDefinitivo(produto, event){
 		let listaDocumentoProduto = this.state.listaDocumentoProduto;
 
 		if(!produto.quantidade){
@@ -227,6 +314,8 @@ export default class Venda extends React.Component {
 		if(!found){
 			listaDocumentoProduto.push(documentoproduto);
 		}
+
+		this.animarProdutoPainel(event.target);
 
 		this.setState({
 			listaDocumentoProduto: listaDocumentoProduto
@@ -280,23 +369,21 @@ export default class Venda extends React.Component {
 	}
 
 	onClickBuscar(){
-		if(!this.state.pesquisa){
-			$("#pesquisa").focus();
-			return true;
-		}
+		this.setState({
+			pesquisaEfetiva: this.state.pesquisa
+		});
 	}
 
 	onKeyUpPesquisa(event){
 		if(event.keyCode === 13){
-			//this.loadDataGrid();
+			this.onClickBuscar();
 		}
 	}
 
 	pesquisaLimpar(){
 		this.setState({
-			pesquisa: ""
-		}, () => {
-			//this.loadDataGrid();
+			pesquisa: "",
+			pesquisaEfetiva: ""
 		});
 	}
 
@@ -313,7 +400,7 @@ export default class Venda extends React.Component {
 					onClick: () => {
 						window.MessageBox.hide();
 						let listaDocumentoProduto = this.state.listaDocumentoProduto;
-						delete listaDocumentoProduto[documentoproduto.i];
+						listaDocumentoProduto.splice(documentoproduto.i, 1);
 						this.setState({
 							listaDocumentoProduto: listaDocumentoProduto
 						});
@@ -332,6 +419,16 @@ export default class Venda extends React.Component {
 	}
 
 	render(){
+
+		let totalbruto = 0;
+		let totaldesconto = 0;
+		let totaldocumento = 0;
+		this.state.listaDocumentoProduto.forEach((documentoproduto) => {
+			totalbruto += documentoproduto.preco * documentoproduto.quantidade;
+			totaldesconto += documentoproduto.totaldesconto;
+			totaldocumento += documentoproduto.totalproduto;
+		});
+
 		return (
 			<Content>
 				<Row>
@@ -345,10 +442,15 @@ export default class Venda extends React.Component {
 								<Button text="Buscar" icon="search" color="green" block={true} onClick={this.onClickBuscar} />
 							</Col>
 						</Row>
-						<PainelRapidoPoucosProdutos pool={this.pool} onSelectProduto={this.incluirProduto} />
+						<PainelRapido
+							Pool={this.Pool}
+							pesquisa={this.state.pesquisaEfetiva}
+							onSelectProduto={this.incluirProduto}
+						/>
 					</Col>
 					<Col size="5" className="pr-0">
 						<VendaDetalhe
+							abrirFinalizacao={this.abrirFinalizacao}
 							aumentarQuantidade={this.aumentarQuantidade}
 							cancelarVendaAtual={this.cancelarVendaAtual}
 							cpfcnpj={this.state.cpfcnpj}
@@ -360,7 +462,35 @@ export default class Venda extends React.Component {
 						/>
 					</Col>
 				</Row>
-				<VendaEditarProduto show={this.state.showEditarProduto} documentoproduto={this.state.documentoproduto} atualizarDocumentoProduto={this.atualizarDocumentoProduto} beforeClose={() => {this.setState({showEditarProduto: false})}} />
+				<VendaEditarProduto
+					show={this.state.showEditarProduto}
+					documentoproduto={this.state.documentoproduto}
+					atualizarDocumentoProduto={this.atualizarDocumentoProduto}
+					beforeClose={() => {this.setState({showEditarProduto: false})}}
+				/>
+				<VendaFinalizacao
+					Pool={this.Pool}
+					show={this.state.showVendaFinalizacao}
+					totaldocumento={totaldocumento}
+					aplicarAcrescimo={this.aplicarAcrescimo}
+					aplicarDesconto={this.aplicarDesconto}
+					incluirDezPorcento={this.incluirDezPorcento}
+					finalizarVenda={this.finalizarVenda}
+					beforeClose={() => {this.setState({showVendaFinalizacao: false})}}
+				/>
+				<VendaAplicarDesconto
+					totalbruto={totalbruto}
+					show={this.state.showVendaAplicarDesconto}
+					aplicarDesconto={this.aplicarDesconto}
+					beforeClose={() => {this.setState({showVendaAplicarDesconto: false})}}
+				/>
+				<VendaAplicarAcrescimo
+					totalbruto={totalbruto}
+					totaldesconto={totaldesconto}
+					show={this.state.showVendaAplicarAcrescimo}
+					aplicarAcrescimo={this.aplicarAcrescimo}
+					beforeClose={() => {this.setState({showVendaAplicarAcrescimo: false})}}
+				/>
 			</Content>
 		)
 	}

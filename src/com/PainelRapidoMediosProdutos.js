@@ -5,9 +5,7 @@ import Row from "./Row.js";
 
 import {defaultMessageBoxError} from "../def/function.js";
 
-import "../css/PainelRapidoPoucosProdutos.css";
-
-export default class PainelRapidoPoucosProdutos extends React.Component {
+export default class PainelRapidoMediosProdutos extends React.Component {
 
 	constructor(props){
 		super(props);
@@ -66,7 +64,7 @@ export default class PainelRapidoPoucosProdutos extends React.Component {
 
 	render(){
 		return (
-			<div className="painelrapido painelrapido-poucosprodutos">
+			<div className="painelrapido painelrapido-mediosprodutos">
 				<Row className="painelrapido-categoria">
 					{this.state.categorias.map((categoria, i) => {
 						return <Categoria key={i} idcategoria={categoria.idcategoria} descricao={categoria.descricao} cor={categoria.cor} trocarCategoria={this.trocarCategoria} />
@@ -97,7 +95,7 @@ class Categoria extends React.Component {
 
 	render(){
 		return (
-			<Col size="3">
+			<Col size="2">
 				<div className="painelrapido-categoria-item" style={{backgroundColor: this.props.cor}} onClick={this.onClick}>
 					<span>{this.props.descricao}</span>
 				</div>
@@ -122,7 +120,7 @@ class Produto extends React.Component {
 
 	render(){
 		return (
-			<Col size="3">
+			<Col size="2">
 				<div className="painelrapido-produto-item" style={{borderColor: this.props.cor}} onClick={this.onClick}>
 					<span>{this.props.descricao}</span>
 				</div>

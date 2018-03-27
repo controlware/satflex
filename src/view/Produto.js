@@ -38,7 +38,7 @@ export default class Produto extends React.Component {
 		this.onKeyUpPesquisa = this.onKeyUpPesquisa.bind(this);
 		this.pesquisaLimpar = this.pesquisaLimpar.bind(this);
 
-		this.pool = new Pool();
+		this.Pool = new Pool();
 	}
 
 	beforeCloseModal(){
@@ -61,7 +61,7 @@ export default class Produto extends React.Component {
 	}
 
 	componentWillUnmount(){
-		this.pool.end();
+		this.Pool.end();
 	}
 
 	loadDataGrid(){
@@ -74,7 +74,7 @@ export default class Produto extends React.Component {
 			"ORDER BY produto.descricao"
 		].join(" ");
 
-		this.pool.query(query, [this.state.pesquisa], (err, res) => {
+		this.Pool.query(query, [this.state.pesquisa], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -165,7 +165,7 @@ export default class Produto extends React.Component {
 					</Col>
 				</Row>
 				<DataGrid header={dataGridHeader} data={this.state.dataGrid} />
-				<ModalProduto pool={this.pool} show={this.state.showModalProduto} idproduto={this.state.idproduto} beforeClose={this.beforeCloseModal} />
+				<ModalProduto Pool={this.Pool} show={this.state.showModalProduto} idproduto={this.state.idproduto} beforeClose={this.beforeCloseModal} />
 			</Content>
 		)
 	}

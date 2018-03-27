@@ -42,16 +42,17 @@
 		}
 		.icon {
 			font-size: 16px;
+			top: -1px;
 		}
 	}
 
 	&.btn-lg {
-		height: 60px;
+		height: 64px;
 		span:not(.icon) {
 			font-size: 18px;
 		}
 		.icon {
-			font-size: 20px;
+			font-size: 22px;
 		}
 	}
 }

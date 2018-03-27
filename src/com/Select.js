@@ -63,7 +63,7 @@ export default class Select extends React.Component {
 
 		let query = "SELECT id"+dbtable+", "+dbcolumn+" FROM "+dbtable+" ORDER BY 2";
 
-		this.props.pool.query({text: query, rowMode: "array"}, (err, res) => {
+		this.props.Pool.query({text: query, rowMode: "array"}, (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;

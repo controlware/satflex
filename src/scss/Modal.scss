@@ -1,7 +1,11 @@
 .modal {
-	.modal-header {
-		border-bottom: none;
-		font-size: 26px;
-		padding-bottom: 0px;
+	.modal-content {
+		box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, .5);
+
+		.modal-header {
+			border-bottom: none;
+			font-size: 24px;
+			padding-bottom: 0px;
+		}
 	}
 }

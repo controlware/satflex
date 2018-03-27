@@ -45,7 +45,7 @@ export default class Modal extends React.Component {
 		let size = (this.props.size ? this.props.size : "md");
 
 		return (
-			<div id={this.props.id} className="modal fade" data-backdrop="static">
+			<div id={this.props.id} className="modal fade" data-backdrop={this.props.closeOnOutClick !== false ? true : "static"}>
 				<div className={"modal-dialog modal-" + size}>
 					<div className="modal-content">
 						<div className="modal-header">

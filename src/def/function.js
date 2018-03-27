@@ -80,3 +80,21 @@ export function validarCPF(cpf){
 	}
 	return true;
 }
+
+export function valorParametro(Pool, grupo, nome, success, fail){
+	let query = "SELECT valor FROM parametro WHERE grupo = $1 AND nome = $2";
+	Pool.query(query, [grupo, nome], (err, res) => {
+		if(err){
+			if(typeof(fail) === "function"){
+				return fail(err);
+			}
+		}
+		let valor = null;
+		if(res.rows.length > 0){
+			valor = res.rows[0].valor;
+		}
+		if(typeof(success) === "function"){
+			return success(valor);
+		}
+	});
+}

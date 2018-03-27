@@ -50,7 +50,7 @@ export default class ModalCategoria extends React.Component {
 			"WHERE categoria.idcategoria = $1"
 		].join(" ");
 
-		this.props.pool.query(query, [idcategoria], (err, res) => {
+		this.props.Pool.query(query, [idcategoria], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -99,7 +99,7 @@ export default class ModalCategoria extends React.Component {
 
 	changeTitle(props){
 		if(props.idcategoria){
-			props.pool.query("SELECT descricao FROM categoria WHERE idcategoria = $1", [props.idcategoria], (err, res) => {
+			props.Pool.query("SELECT descricao FROM categoria WHERE idcategoria = $1", [props.idcategoria], (err, res) => {
 				if(err){
 					defaultMessageBoxError(err.message);
 					return false;
@@ -147,7 +147,7 @@ export default class ModalCategoria extends React.Component {
 					color: "green",
 					onClick: () => {
 						window.MessageBox.hide();
-						this.props.pool.query("DELETE FROM categoria WHERE idcategoria = $1", [this.props.idcategoria], (err, res) => {
+						this.props.Pool.query("DELETE FROM categoria WHERE idcategoria = $1", [this.props.idcategoria], (err, res) => {
 							if(err){
 								defaultMessageBoxError(err.message);
 								return false;
@@ -183,7 +183,7 @@ export default class ModalCategoria extends React.Component {
 
 				if(name2 === "codigoncm" && value){
 					try{
-						let res = await this.props.pool.query("SELECT idncm FROM ncm WHERE codigoncm = $1", [value]);
+						let res = await this.props.Pool.query("SELECT idncm FROM ncm WHERE codigoncm = $1", [value]);
 						if(res.rows.length === 0){
 							window.MessageBox.show({
 								title: "NCM inexistente",
@@ -235,7 +235,7 @@ export default class ModalCategoria extends React.Component {
 			query = "INSERT INTO categoria (" + columns.join(", ") + ") VALUES (" + sets.join(", ") + ")";
 		}
 
-		this.props.pool.query(query, values, (err, res) => {
+		this.props.Pool.query(query, values, (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -294,7 +294,7 @@ export default class ModalCategoria extends React.Component {
 			"WHERE codigoncm = $1"
 		].join(" ");
 
-		this.props.pool.query(query, [this.state.input_codigoncm], (err, res) => {
+		this.props.Pool.query(query, [this.state.input_codigoncm], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -345,7 +345,7 @@ export default class ModalCategoria extends React.Component {
 		};
 
 		return (
-			<Modal title={this.state.title} size="lg" show={this.state.show} beforeClose={this.props.beforeClose} afterClose={this.props.afterClose}>
+			<Modal title={this.state.title} size="lg" show={this.state.show} beforeClose={this.props.beforeClose} afterClose={this.props.afterClose} closeOnOutClick={false}>
 				<Row>
 					<FormGroup type="text" id="modalcategoria-descricao" className="col-5" label="Descrição" value={this.state.input_descricao} onChange={this.onChangeInput} />
 					<FormGroup type="color" id="modalcategoria-cor" className="col-3" label="Cor representativa" value={this.state.input_cor} onChange={this.onChangeInput} />

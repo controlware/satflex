@@ -151,10 +151,6 @@ export default class VendaEditarProduto extends React.Component {
 		}, this.calcularTotais);
 	}
 
-	shouldComponentUpdate(nextProps){
-		return nextProps.show;
-	}
-
 	render(){
 		let totalbruto = this.state.preco * this.state.quantidade;
 		let acrescimopercentual = (totalbruto > 0 ? this.state.totalacrescimo / totalbruto * 100 : 0);

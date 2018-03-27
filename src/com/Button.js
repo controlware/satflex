@@ -15,12 +15,14 @@ export default class Button extends React.Component {
 		var innerButton = null;
 		if(this.props.icon){
 			if(this.props.text){
+				let mlSize = (this.props.size === "lg" ? "3" : "2");
+
 				switch(this.props.iconPosition){
 					default:
 					case "left":
 						innerButton = [
 							<Icon name={this.props.icon} key="0" />,
-							<span className="ml-2" key="1">{this.props.text}</span>
+							<span className={"ml-" + mlSize} key="1">{this.props.text}</span>
 						];
 						break;
 					case "right":

@@ -3,4 +3,15 @@
 		bottom: 4px;
 		position: absolute;
 	}
+
+	&.form-group-warning {
+		label {
+			color: #f00;
+		}
+
+		input {
+			border-color: #f00;
+			color: #f00;
+		}
+	}
 }

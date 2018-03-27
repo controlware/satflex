@@ -53,7 +53,7 @@ export default class ModalProduto extends React.Component {
 			"WHERE produto.idproduto = $1"
 		].join(" ");
 
-		this.props.pool.query(query, [idproduto], (err, res) => {
+		this.props.Pool.query(query, [idproduto], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -102,7 +102,7 @@ export default class ModalProduto extends React.Component {
 
 	changeTitle(props){
 		if(props.idproduto){
-			props.pool.query("SELECT descricao FROM produto WHERE idproduto = $1", [props.idproduto], (err, res) => {
+			props.Pool.query("SELECT descricao FROM produto WHERE idproduto = $1", [props.idproduto], (err, res) => {
 				if(err){
 					defaultMessageBoxError(err.message);
 					return false;
@@ -150,7 +150,7 @@ export default class ModalProduto extends React.Component {
 					color: "green",
 					onClick: () => {
 						window.MessageBox.hide();
-						this.props.pool.query("DELETE FROM produto WHERE idproduto = $1", [this.props.idproduto], (err, res) => {
+						this.props.Pool.query("DELETE FROM produto WHERE idproduto = $1", [this.props.idproduto], (err, res) => {
 							if(err){
 								defaultMessageBoxError(err.message);
 								return false;
@@ -186,7 +186,7 @@ export default class ModalProduto extends React.Component {
 
 				if(name2 === "codigoncm" && value){
 					try{
-						let res = await this.props.pool.query("SELECT idncm FROM ncm WHERE codigoncm = $1", [value]);
+						let res = await this.props.Pool.query("SELECT idncm FROM ncm WHERE codigoncm = $1", [value]);
 						if(res.rows.length === 0){
 							window.MessageBox.show({
 								title: "NCM inexistente",
@@ -239,7 +239,7 @@ export default class ModalProduto extends React.Component {
 			query = "INSERT INTO produto (" + columns.join(", ") + ") VALUES (" + sets.join(", ") + ")";
 		}
 
-		this.props.pool.query(query, values, (err, res) => {
+		this.props.Pool.query(query, values, (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -301,7 +301,7 @@ export default class ModalProduto extends React.Component {
 			"WHERE categoria.idcategoria = $1"
 		].join(" ");
 
-		this.props.pool.query(query, [this.state.input_idcategoria], (err, res) => {
+		this.props.Pool.query(query, [this.state.input_idcategoria], (err, res) => {
 			if(err){
 				defaultMessageBoxError(err.message);
 				return false;
@@ -352,12 +352,12 @@ export default class ModalProduto extends React.Component {
 		};
 
 		return (
-			<Modal title={this.state.title} size="lg" show={this.state.show} beforeClose={this.props.beforeClose} afterClose={this.props.afterClose}>
+			<Modal title={this.state.title} size="lg" show={this.state.show} beforeClose={this.props.beforeClose} afterClose={this.props.afterClose} closeOnOutClick={false}>
 				<div className={this.state.showDiv !== "principal" ? "d-none" : ""}>
 					<Row>
 						<FormGroup type="text" id="modalproduto-descricao" className="col-8" label="Descrição" value={this.state.input_descricao} onChange={this.onChangeInput} />
 						<FormGroup type="text" id="modalproduto-dthrcriacao" className="col-4" label="Criado em" readOnly={true} value={this.state.input_dthrcriacao} onChange={this.onChangeInput} disabled={true} />
-						<FormGroup type="select" id="modalproduto-idcategoria" className="col-5" label="Categoria" dbtable="categoria" dbcolumn="descricao" pool={this.props.pool} value={this.state.input_idcategoria} onChange={this.onChangeCategoria} />
+						<FormGroup type="select" id="modalproduto-idcategoria" className="col-5" label="Categoria" dbtable="categoria" dbcolumn="descricao" Pool={this.props.Pool} value={this.state.input_idcategoria} onChange={this.onChangeCategoria} />
 						<FormGroup type="text" id="modalproduto-codigoean" className="col-4" label="Código EAN" value={this.state.input_codigoean} onChange={this.onChangeInput} />
 						<FormGroup type="select" id="modalproduto-balanca" className="col-3" label="Pesar na balança" options={{"S": "Sim", "N": "Não"}} value={this.state.input_balanca} onChange={this.onChangeInput} />
 						<FormGroup type="select" id="modalproduto-precovariavel" className="col-3" label="Preço variável" options={{"S": "Sim", "N": "Não"}} value={this.state.input_precovariavel} onChange={this.onChangeInput} />

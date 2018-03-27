@@ -42,7 +42,7 @@ export default class VendaDetalhe extends React.Component {
 			<div className="vendadetalhe" style={{height: this.state.height}}>
 				<VendaDetalheCabecalho cancelarVendaAtual={this.props.cancelarVendaAtual} listaDocumentoProduto={this.props.listaDocumentoProduto} />
 				<VendaDetalheCorpo aumentarQuantidade={this.props.aumentarQuantidade} diminuirQuantidade={this.props.diminuirQuantidade} editarProduto={this.props.editarProduto} listaDocumentoProduto={this.props.listaDocumentoProduto} removerProduto={this.props.removerProduto} />
-				<VendaDetalheRodape cpfcnpj={this.props.cpfcnpj} informarCPF={this.props.informarCPF} listaDocumentoProduto={this.props.listaDocumentoProduto} />
+				<VendaDetalheRodape cpfcnpj={this.props.cpfcnpj} abrirFinalizacao={this.props.abrirFinalizacao} informarCPF={this.props.informarCPF} listaDocumentoProduto={this.props.listaDocumentoProduto} />
 			</div>
 		)
 	}
@@ -239,17 +239,17 @@ class VendaDetalheRodape extends React.Component {
 								<div>Total dos itens <strong><small>R$</small>{totalbruto.format(2, ",", ".")}</strong></div>
 								<div>Total de desconto <strong><small>R$</small>{totaldesconto.format(2, ",", ".")}</strong></div>
 							</div>
-							<div className={"vendadetalhe-rodape-cpfcnpj mt-4" + (this.state.cpfcnpj ? "" : " d-none")}>
+							<div className={"vendadetalhe-rodape-cpfcnpj" + (this.state.cpfcnpj ? "" : " d-none")} style={{position: "absolute", bottom: "0px"}}>
 								<span>CPF: <strong>{this.state.cpfcnpj}</strong></span>
 								<Button text="alterar" color="green" size="xs" className="ml-2" onClick={this.props.informarCPF} />
 							</div>
-							<div className={this.state.cpfcnpj ? " d-none" : ""}>
+							<div className={this.state.cpfcnpj ? " d-none" : ""} style={{position: "absolute", bottom: "0px"}}>
 								<Button text="Informar CPF" color="green" size="sm" onClick={this.props.informarCPF} />
 							</div>
 						</Col>
 						<Col size="6">
 							<div className="vendadetalhe-rodape-totaldocumento">{totaldocumento.format(2, ",", ".")}</div>
-							<Button text="F I N A L I Z A R" icon="dollar2" size="lg" block="true" color="green" disabled={totaldocumento === 0} />
+							<Button text="F I N A L I Z A R" icon="dollar2" size="lg" block="true" color="green" disabled={totaldocumento === 0} onClick={this.props.abrirFinalizacao} />
 						</Col>
 					</Row>
 				</div>
