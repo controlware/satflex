@@ -1,0 +1,61 @@
+$spinner-size: 250px;
+$spinner-shadow-size: 2px;
+$spinner-shadow-color: rgba(0, 0, 0, 0.75);
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+		//box-shadow: 0px $spinner-shadow-size $spinner-shadow-size $spinner-shadow-color, inset 0px $spinner-shadow-size $spinner-shadow-size $spinner-shadow-color;
+	}
+	25% {
+		transform: rotate(90deg);
+		//box-shadow: $spinner-shadow-size 0px $spinner-shadow-size $spinner-shadow-color, inset $spinner-shadow-size 0px $spinner-shadow-size $spinner-shadow-color;
+	}
+	50% {
+		transform: rotate(180deg);
+	}
+	75% {
+		transform: rotate(270deg);
+		//box-shadow: (-$spinner-shadow-size) 0px $spinner-shadow-size $spinner-shadow-color, inset (-$spinner-shadow-size) 0px $spinner-shadow-size $spinner-shadow-color;
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.Loading {
+	background-color: rgba(0, 0, 0, 0.65);
+	bottom: 0px;
+	//display: none;
+	left: 0px;
+	position: fixed;
+	right: 0px;
+	top: 0px;
+	z-index: 2050;
+
+	.Loading-Spinner {
+		animation: spin 2s linear infinite;
+		border: 10px solid #fff;
+		border-radius: 50%;
+		border-bottom-color: #fff;
+		border-left-color: transparent;
+		border-right-color: transparent;
+		border-top-color: #fff;
+		height: $spinner-size;
+		left: calc(50% - #{$spinner-size} / 2);
+		position: fixed;
+		top: calc(50% - #{$spinner-size} / 2);
+		width: $spinner-size;
+	}
+
+	&::after {
+		content: "Por favor, aguarde...";
+		color: #fff;
+		font-weight: bold;
+		left: calc(50% - 100px);
+		position: fixed;
+		text-shadow: 0px 1px 1px #000;
+		text-transform: uppercase;
+		top: calc(50% - 10px);
+	}
+}

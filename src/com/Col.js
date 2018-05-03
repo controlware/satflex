@@ -9,6 +9,10 @@ export default class Col extends React.Component {
 			className.push(this.props.className);
 		}
 
+		if(this.props.offset){
+			className.push("offset-" + this.props.offset);
+		}
+
 		let label = null;
 		if(this.props.labelMargin){
 			label = <label>&nbsp;</label>;

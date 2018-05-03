@@ -1,4 +1,5 @@
 import React from "react";
+import $ from "jquery";
 
 import "./../css/PainelRapido.css";
 
@@ -19,7 +20,16 @@ export default class PainelRapido extends React.Component {
 		};
 	}
 
+	ajustarAltura(){
+		if($(".painelrapido").length > 0){
+			let height = window.innerHeight - $(".painelrapido").offset().top;
+			$(".painelrapido").height(height);
+		}
+	}
+
 	componentDidMount(){
+		window.addEventListener("resize", this.ajustarAltura);
+
 		valorParametro(this.props.Pool, "DIVERSOS", "LAYOUTVENDAS", (valor) => {
 			this.setState({
 				layoutVendas: valor
@@ -27,6 +37,16 @@ export default class PainelRapido extends React.Component {
 		}, (err) => {
 			defaultMessageBoxError(err);
 		});
+
+		this.ajustarAltura();
+	}
+
+	componentDidUpdate(){
+		this.ajustarAltura();
+	}
+
+	componentWillUnmount(){
+		window.removeEventListener("resize", this.ajustarAltura);
 	}
 
 	render(){

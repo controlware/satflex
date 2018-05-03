@@ -30,10 +30,7 @@ function createWindow(){
 		fullscreen: true,
 		height: screenSize.height,
 		resizable: false,
-		width: screenSize.width,
-		webPreferences: {
-			preload: app.getAppPath() + "/src/preload.js"
-		}
+		width: screenSize.width
 	});
 
 	browserWindow.loadURL(isDev ? "http://localhost:3000" : `file://${path.join(__dirname, '../build/index.html')}`);

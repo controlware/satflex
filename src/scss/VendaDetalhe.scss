@@ -27,7 +27,6 @@
 				position: absolute;
 				right: 15px;
 				top: 12px;
-
 			}
 
 			.vendadetalhe-cabecalho-opcoes {
@@ -162,11 +161,11 @@
 				font-weight: bold;
 
 				.icon {
-					font-size: 62px;
-					opacity: 0.5;
+					font-size: 60px;
+					left: 10px;
+					opacity: 0.35;
 					position: absolute;
-					margin-left: -30px;
-					margin-top: 3px;
+					margin-top: 4px;
 					transform: rotate(-5deg);
 				}
 			}
@@ -214,6 +213,35 @@
 		display: table-row;
 		& > div {
 			display: table-cell;
+		}
+	}
+}
+
+#content.operacao-OR .vendadetalhe {
+	.vendadetalhe-cabecalho {
+		background-color: #3e97a5;
+	}
+	.vendadetalhe-corpo {
+		background-color: #fdfff7;
+	}
+	.vendadetalhe-rodape {
+		background-color: #3e97a5;
+	}
+
+	.btn {
+		&.btn-color-green {
+			background-color: #1c6571;
+			border-color: #18555f;
+			&:hover {
+				background-color: #18555f;
+			}
+		}
+		&.btn-color-red {
+			background-color: #ce87a4;
+			border-color: #a0617b;
+			&:hover {
+				background-color: #a0617b;
+			}
 		}
 	}
 }

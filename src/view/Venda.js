@@ -12,11 +12,21 @@ import PainelRapido from "../com/PainelRapido.js";
 import Row from "../com/Row.js";
 import VendaAplicarAcrescimo from "../com/VendaAplicarAcrescimo.js";
 import VendaAplicarDesconto from "../com/VendaAplicarDesconto.js";
+import VendaCancelarCupom from  "../com/VendaCancelarCupom.js";
 import VendaDetalhe from "../com/VendaDetalhe.js";
 import VendaEditarProduto from "../com/VendaEditarProduto.js";
 import VendaFinalizacao from "../com/VendaFinalizacao.js";
+import VendaFinalizacaoOrcamento from "../com/VendaFinalizacaoOrcamento.js";
+import VendaReimprimirCupom from "../com/VendaReimprimirCupom.js";
 
-import {validarCPF, validarCNPJ} from "../def/function.js";
+import Printer from "../com/Printer.js";
+import SAT from "../com/SAT.js";
+
+import "../def/prototype.js";
+import {
+	defaultMessageBoxError, temporaryDirectory, validarCPF,
+	validarCNPJ, valorParametro, writeTemporary
+} from "../def/function.js";
 
 import "../css/Venda.css";
 
@@ -30,12 +40,20 @@ export default class Venda extends React.Component {
 		this.state = {
 			documentoproduto: documentoproduto, // Produto atual que esta sendo editado
 			listaDocumentoProduto: [], // Lista de produtos que compoe a venda
+			listaDocumentoPagamento: [], // Lista de pagamentos que compoe a venda
+			operacao: "CU", // Operacao (CU: Cupom, OR: Orcamento)
+			cpfcnpj: null, // CPF/CNPJ do cliente
+			nomeorcamento: null, // Nome do cliente
+			iddocumentoorcamento: null, // ID do orcamento de origem
 			pesquisa: "", // Conteudo da pesquisa
 			pesquisaEfetiva: "", // O real termo sendo pesquisado
 			showEditarProduto: false, // Se deve exibir o modal da edicao de produtos
-			showVendaFinalizacao: false, // Se deve exibir o modal da finalizacao de venda
 			showVendaAplicarDesconto: false, // Se deve exibir o modal da aplicacao de desconto
-			showVendaAplicarAcrescimo: false // Se deve exibir o modal da aplicacao de acrescimo
+			showVendaAplicarAcrescimo: false, // Se deve exibir o modal da aplicacao de acrescimo
+			showVendaCancelarCupom: false, // Se deve exibir o modal de cancelamento de cupom
+			showVendaFinalizacao: false, // Se deve exibir o modal da finalizacao de venda
+			showVendaFinalizacaoOrcamento: false, // Se deve exibir o modal da finalizacao de orcamento
+			showVendaReimprimirCupom: false // Se deve exibir o modal de reimpressao de cupom
 		};
 
 		this.abrirFinalizacao = this.abrirFinalizacao.bind(this);
@@ -44,9 +62,15 @@ export default class Venda extends React.Component {
 		this.aplicarDesconto = this.aplicarDesconto.bind(this);
 		this.atualizarDocumentoProduto = this.atualizarDocumentoProduto.bind(this);
 		this.aumentarQuantidade = this.aumentarQuantidade.bind(this);
+		this.cancelarUltimaVenda = this.cancelarUltimaVenda.bind(this);
 		this.cancelarVendaAtual = this.cancelarVendaAtual.bind(this);
+		this.carregarTemporario = this.carregarTemporario.bind(this);
 		this.diminuirQuantidade = this.diminuirQuantidade.bind(this);
 		this.editarProduto = this.editarProduto.bind(this);
+		this.finalizarDocumento = this.finalizarDocumento.bind(this);
+		this.finalizarOrcamento = this.finalizarOrcamento.bind(this);
+		this.finalizarVenda = this.finalizarVenda.bind(this);
+		this.gravarTemporario = this.gravarTemporario.bind(this);
 		this.incluirDezPorcento = this.incluirDezPorcento.bind(this);
 		this.incluirProduto = this.incluirProduto.bind(this);
 		this.informarCPF = this.informarCPF.bind(this);
@@ -54,15 +78,32 @@ export default class Venda extends React.Component {
 		this.onClickBuscar = this.onClickBuscar.bind(this);
 		this.onKeyUpPesquisa = this.onKeyUpPesquisa.bind(this);
 		this.pesquisaLimpar = this.pesquisaLimpar.bind(this);
+		this.reimprimirCupom = this.reimprimirCupom.bind(this);
+		this.reiniciar = this.reiniciar.bind(this);
 		this.removerProduto = this.removerProduto.bind(this);
+		this.trocarOperacao = this.trocarOperacao.bind(this);
 
 		this.Pool = new Pool();
+		this.Printer = new Printer(this.Pool);
+
+		this.temporaryFileName = "venda.tmp";
 	}
 
 	abrirFinalizacao(){
-		this.setState({
-			showVendaFinalizacao: true
-		});
+		switch(this.state.operacao){
+			case "CU":
+				this.setState({
+					showVendaFinalizacao: true
+				});
+				break;
+			case "OR":
+				this.setState({
+					showVendaFinalizacaoOrcamento: true
+				});
+				break;
+			default:
+				break;
+		}
 	}
 
 	animarProdutoPainel(element){
@@ -144,6 +185,12 @@ export default class Venda extends React.Component {
 		documentoproduto.totalproduto = (documentoproduto.preco * documentoproduto.quantidade) - documentoproduto.totaldesconto + documentoproduto.totalacrescimo;
 	}
 
+	cancelarUltimaVenda(){
+		this.setState({
+			showVendaCancelarCupom: true
+		});
+	}
+
 	cancelarVendaAtual(){
 		window.MessageBox.show({
 			title: "Cancelamento de venda",
@@ -173,12 +220,28 @@ export default class Venda extends React.Component {
 		});
 	}
 
-	componentDidMount(){
+	async carregarTemporario(){
+		let fs = window.require("fs");
+		let filename = temporaryDirectory() + "/" + this.temporaryFileName;
+		if(fs.existsSync(filename)){
+			let content = fs.readFileSync(filename);
+			let state = JSON.parse(content);
+			if(typeof state === "object"){
+				this.setState(state);
+			}
+		}
+	}
 
+	componentDidMount(){
+		this.carregarTemporario();
 	}
 
 	componentWillUnmount(){
 		this.Pool.end();
+	}
+
+	componentWillUpdate(nextProps, nextState){
+		this.gravarTemporario(nextState);
 	}
 
 	criarObjetoDocumentoProduto(documentoproduto){
@@ -219,8 +282,214 @@ export default class Venda extends React.Component {
 		});
 	}
 
+	async finalizarDocumento(){
+		window.Loading.show();
+
+		// Abre um client com o banco para fazer transacao
+		const client = await this.Pool.connect();
+		try{
+			// Inicia a transacao
+			client.query("BEGIN");
+
+			// Cria o documento
+			let sqlInsertDocumento = [
+				"INSERT INTO documento (operacao, modelo, cpfcnpj, nomeorcamento, totaltroco)",
+				"VALUES ($1, $2, $3, $4, $5)",
+				"RETURNING iddocumento"
+			].join(" ");
+			let resDocumento = await client.query(sqlInsertDocumento, [
+				this.state.operacao, "65", this.state.cpfcnpj,
+				this.state.nomeorcamento, this.state.totaltroco
+			]);
+
+			// Captura o id do documento gravado
+			let iddocumento = resDocumento.rows[0].iddocumento;
+
+			// Captura todos os codigos de produtos
+			let listaIdProduto = [];
+			for(let documentoproduto of this.state.listaDocumentoProduto){
+				listaIdProduto.push(documentoproduto.idproduto);
+			}
+
+			// Carrega as informacoes necessarias para incluir o produto
+			let queryProduto = [
+				"SELECT produto.idproduto, ncm.codigoncm, produto.origem,",
+				"  produto.csosn, produto.aliqicms, produto.cstpis, produto.aliqpis,",
+				"  produto.cstcofins, produto.aliqcofins, produto.codcontribsocial,",
+				"  produto.cest, produto.cfop",
+				"FROM produto",
+				"LEFT JOIN ncm USING (idncm)",
+				"WHERE idproduto IN (" + listaIdProduto.join(", ") + ")"
+			].join(" ");
+
+			let resProduto = await client.query(queryProduto);
+
+			// Organiza os produtos carregados
+			let listaProdutos = {};
+			for(let row of resProduto.rows){
+				let idproduto = row.idproduto;
+				delete row.idproduto;
+				listaProdutos[idproduto] = row;
+			}
+
+			// Percorre os itens da venda
+			let sequencial = 1;
+			for(let documentoproduto of this.state.listaDocumentoProduto){
+				let produto = listaProdutos[documentoproduto.idproduto];
+
+				let sqlInsertDocumentoProduto = [
+					"INSERT INTO documentoproduto (",
+					"  iddocumento, sequencial, idproduto,",
+					"  descricao, preco, quantidade,",
+					"  descontounitario, acrescimounitario, codigoncm,",
+					"  origem, csosn, aliqicms,",
+					"  cstpis, aliqpis, cstcofins,",
+					"  aliqcofins, codcontribsocial, cest,",
+					"  cfop",
+					") VALUES (",
+					"  $1, $2, $3,",
+					"  $4, $5, $6,",
+					"  $7, $8, $9,",
+					"  $10, $11, $12,",
+					"  $13, $14, $15,",
+					"  $16, $17, $18,",
+					"  $19",
+					")"
+				].join(" ");
+
+				await client.query(sqlInsertDocumentoProduto, [
+					iddocumento, sequencial++, documentoproduto.idproduto,
+					documentoproduto.descricao, documentoproduto.preco, documentoproduto.quantidade,
+					documentoproduto.descontounitario, documentoproduto.acrescimounitario, produto.codigoncm,
+					produto.origem, produto.csosn, produto.aliqicms,
+					produto.cstpis, produto.aliqpis, produto.cstcofins,
+					produto.aliqcofins, produto.codcontribsocial, produto.cest,
+					produto.cfop
+				]);
+			}
+
+			// Verifica se eh cupom
+			if(this.state.operacao === "CU"){
+				let listaDocumentoPagamento = this.state.listaDocumentoPagamento;
+
+				// Verifica se existe troco, e se caso sim, abate o valor da ultima finalizadora informada
+				if(this.state.totaltroco > 0){
+					let i = listaDocumentoPagamento.length - 1;
+					listaDocumentoPagamento[i].totalpagamento -= this.state.totaltroco;
+				}
+
+				// Grava os pagamentos
+				for(let documentopagamento of listaDocumentoPagamento){
+					let sqlInsertDocumentoPagamento = [
+						"INSERT INTO documentopagamento (iddocumento, idformapagamento, totalpagamento)",
+						"VALUES ($1, $2, $3)"
+					].join(" ");
+
+					await client.query(sqlInsertDocumentoPagamento, [
+						iddocumento, documentopagamento.idformapagamento, documentopagamento.totalpagamento
+					]);
+				}
+
+				// Apaga o orcamento origem se houver
+				if(this.state.iddocumentoorcamento){
+					await client.query("DELETE FROM documento WHERE iddocumento = $1", [this.state.iddocumentoorcamento]);
+				}
+
+				// Transmite o documento atraves do SAT
+				let sat = new SAT(client);
+				await sat.transmitirDocumento(iddocumento);
+			}
+
+			// Confirma a transacao do banco de dados
+			await client.query("COMMIT");
+
+			// Mensagem de sucesso
+			if(this.state.totaltroco > 0){
+				window.MessageBox.show({
+					text: "<div class='text-center'><h5>Venda finalizada com sucesso!</h5><h3>Total de troco</h3><h1><small>R$</small>" + this.state.totaltroco.format(2, ",", ".") + "</h1></div>"
+				});
+			}else{
+				switch(this.state.operacao){
+					case "CU":
+					default:
+						window.FastMessage.show("Venda finalizada com sucesso!");
+						break;
+					case "OR":
+						window.FastMessage.show("Orçamento finalizado com sucesso!");
+						break;
+				}
+			}
+
+			// Imprime o documento
+			let numeroVias = await valorParametro(this.Pool, "IMPRESSORA", "NUMEROVIAS");
+			if(await valorParametro(this.Pool, "IMPRESSORA", "CONFIRMACAO") === "S"){
+				window.MessageBox.show({
+					title: "Imprimir cupom",
+					text: "Deseja imprimir o cupom da venda realizada?",
+					buttons: [
+						{
+							text: "Sim",
+							color: "green",
+							icon: "thumbs-up",
+							onClick: () => {
+								window.MessageBox.hide();
+								for(let i = 1; i <= numeroVias; i++){
+									this.Printer.imprimirDocumento(iddocumento);
+								}
+							}
+						},
+						{
+							text: "Não",
+							color: "red",
+							icon: "thumbs-down",
+							onClick: function(){
+								window.MessageBox.hide();
+							}
+						}
+					]
+				})
+			}else{
+				for(let i = 1; i <= numeroVias; i++){
+					this.Printer.imprimirDocumento(iddocumento);
+				}
+			}
+
+			// Prepara a tela para uma nova venda
+			this.reiniciar();
+		}catch(err){
+			await client.query("ROLLBACK");
+			defaultMessageBoxError(err.message);
+			console.error(err.stack);
+		}finally{
+			client.release();
+			window.Loading.hide();
+		}
+	}
+
+	finalizarOrcamento(nomeorcamento, cpfcnpj){
+		this.setState({
+			nomeorcamento: nomeorcamento,
+			cpfcnpj: cpfcnpj,
+			listaDocumentoPagamento: [],
+			totaltroco: 0,
+			showVendaFinalizacaoOrcamento: false
+		}, () => {
+			this.finalizarDocumento();
+		});
+	}
+
 	finalizarVenda(documentopagamentos, totaltroco){
-		
+		this.setState({
+			listaDocumentoPagamento: documentopagamentos,
+			totaltroco: totaltroco,
+		}, () => {
+			this.finalizarDocumento();
+		});
+	}
+
+	async gravarTemporario(state){
+		state = (state === undefined ? this.state : state);
+		writeTemporary(this.temporaryFileName, JSON.stringify(state));
 	}
 
 	incluirDezPorcento(){
@@ -387,6 +656,33 @@ export default class Venda extends React.Component {
 		});
 	}
 
+	reimprimirCupom(){
+		this.setState({
+			showVendaReimprimirCupom: true
+		});
+	}
+
+	reiniciar(){
+		let documentoproduto = this.criarObjetoDocumentoProduto();
+
+		this.setState({
+			documentoproduto: documentoproduto,
+			listaDocumentoProduto: [],
+			listaDocumentoPagamento: [],
+			//operacao: "CU",
+			cpfcnpj: null,
+			nomeorcamento: null,
+			iddocumentoorcamento: null,
+			pesquisa: "",
+			pesquisaEfetiva: "",
+			showEditarProduto: false,
+			showVendaFinalizacao: false,
+			showVendaFinalizacaoOrcamento: false,
+			showVendaAplicarDesconto: false,
+			showVendaAplicarAcrescimo: false
+		});
+	}
+
 	removerProduto(documentoproduto){
 		let totalproduto = "R$ " + documentoproduto.totalproduto.format(2, ",", ".");
 
@@ -418,6 +714,12 @@ export default class Venda extends React.Component {
 		});
 	}
 
+	trocarOperacao(operacao){
+		this.setState({
+			operacao: operacao
+		});
+	}
+
 	render(){
 
 		let totalbruto = 0;
@@ -429,8 +731,10 @@ export default class Venda extends React.Component {
 			totaldocumento += documentoproduto.totalproduto;
 		});
 
+		let contentClassName = "operacao-" + this.state.operacao;
+
 		return (
-			<Content>
+			<Content className={contentClassName}>
 				<Row>
 					<Col size="7">
 						<Row className="mb-4 mt-4">
@@ -452,13 +756,17 @@ export default class Venda extends React.Component {
 						<VendaDetalhe
 							abrirFinalizacao={this.abrirFinalizacao}
 							aumentarQuantidade={this.aumentarQuantidade}
+							cancelarUltimaVenda={this.cancelarUltimaVenda}
 							cancelarVendaAtual={this.cancelarVendaAtual}
+							reimprimirCupom={this.reimprimirCupom}
 							cpfcnpj={this.state.cpfcnpj}
 							diminuirQuantidade={this.diminuirQuantidade}
 							editarProduto={this.editarProduto}
 							informarCPF={this.informarCPF}
 							listaDocumentoProduto={this.state.listaDocumentoProduto}
+							operacao={this.state.operacao}
 							removerProduto={this.removerProduto}
+							trocarOperacao={this.trocarOperacao}
 						/>
 					</Col>
 				</Row>
@@ -476,7 +784,15 @@ export default class Venda extends React.Component {
 					aplicarDesconto={this.aplicarDesconto}
 					incluirDezPorcento={this.incluirDezPorcento}
 					finalizarVenda={this.finalizarVenda}
+					listaDocumentoPagamento={this.state.listaDocumentoPagamento}
 					beforeClose={() => {this.setState({showVendaFinalizacao: false})}}
+				/>
+				<VendaFinalizacaoOrcamento
+					nomeorcamento={this.state.nomeorcamento}
+					cpfcnpj={this.state.cpfcnpj}
+					finalizarOrcamento={this.finalizarOrcamento}
+					show={this.state.showVendaFinalizacaoOrcamento}
+					beforeClose={() => {this.setState({showVendaFinalizacaoOrcamento: false})}}
 				/>
 				<VendaAplicarDesconto
 					totalbruto={totalbruto}
@@ -490,6 +806,16 @@ export default class Venda extends React.Component {
 					show={this.state.showVendaAplicarAcrescimo}
 					aplicarAcrescimo={this.aplicarAcrescimo}
 					beforeClose={() => {this.setState({showVendaAplicarAcrescimo: false})}}
+				/>
+				<VendaCancelarCupom
+					Pool={this.Pool}
+					show={this.state.showVendaCancelarCupom}
+					beforeClose={() => {this.setState({showVendaCancelarCupom: false})}}
+				/>
+				<VendaReimprimirCupom
+					Pool={this.Pool}
+					show={this.state.showVendaReimprimirCupom}
+					beforeClose={() => {this.setState({showVendaReimprimirCupom: false})}}
 				/>
 			</Content>
 		)

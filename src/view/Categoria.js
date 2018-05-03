@@ -149,7 +149,7 @@ export default class Categoria extends React.Component {
 
 		return (
 			<Content>
-				<Title>Cadastro de <b>Categorias</b></Title>
+				<Title model="2">Cadastro de <b>Categorias</b></Title>
 				<Row className="mb-4">
 					<Col size="4">
 						<FormControl type="search" id="pesquisa" value={this.state.pesquisa} placeholder="Pesquise uma categoria..." onKeyUp={this.onKeyUpPesquisa} onChange={this.onChangePesquisa} />

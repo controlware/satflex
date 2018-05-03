@@ -196,7 +196,7 @@ export default class ModalProduto extends React.Component {
 						}
 						name2 = "idncm";
 						value = res.rows[0].idncm;
-					}catch(err) {
+					}catch(err){
 						defaultMessageBoxError(err.message);
 						return false;
 					}

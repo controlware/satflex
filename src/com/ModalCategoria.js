@@ -349,7 +349,7 @@ export default class ModalCategoria extends React.Component {
 				<Row>
 					<FormGroup type="text" id="modalcategoria-descricao" className="col-5" label="Descrição" value={this.state.input_descricao} onChange={this.onChangeInput} />
 					<FormGroup type="color" id="modalcategoria-cor" className="col-3" label="Cor representativa" value={this.state.input_cor} onChange={this.onChangeInput} />
-					<FormGroup type="text" id="modalcategoria-dthrcriacao" className="col-4" label="Criado em" readonly={true} value={this.state.input_dthrcriacao} onChange={this.onChangeInput} disabled={true} />
+					<FormGroup type="text" id="modalcategoria-dthrcriacao" className="col-4" label="Criado em" readOnly={true} value={this.state.input_dthrcriacao} onChange={this.onChangeInput} disabled={true} />
 					<FormGroup type="text" id="modalcategoria-codigoncm" label="NCM da categoria" className="col-3" inputClassName="text-center" InformarValor={{mask: "9999.99.99"}} value={this.state.input_codigoncm} onChange={this.onChangeNcm} />
 					<FormGroup type="checkbox" id="modalcategoria-sinctributacao" label="Usar as mesmas tributações da categoria" className="col-9" value={this.state.input_sinctributacao} onChange={this.onChangeSincTributacao} />
 					<FormGroup type="select" id="modalcategoria-origem" className="col-6" label="Origem do categoria" options={origemOptions} value={this.state.input_origem} onChange={this.onChangeInput} disabled={this.state.input_sinctributacao === "S"} />

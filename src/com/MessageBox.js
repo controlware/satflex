@@ -90,6 +90,11 @@ export class MessageBoxModal extends React.Component {
 
 	componentDidMount(){
 		this.props.MessageBoxEmitter.addChangeListener(this.onChangeData);
+
+		let element = this.props.MessageBoxEmitter.getElement();
+		$(element).on("shown.bs.modal", () => {
+			$(element).find(".btn").first().focus();
+		});
 	}
 
 	componentWillUnmount(){

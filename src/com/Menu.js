@@ -38,13 +38,13 @@ class MenuList extends React.Component {
 				text: "Vender",
 				icon: "shop",
 				link: "/"
-			},
+			},/*
 			{
 				text: "Notas fiscais",
 				icon: "clipboard",
 				link: "/notafiscal",
 				active: false
-			},
+			},*/
 			{
 				text: "Cadastros",
 				icon: "stack",
@@ -78,8 +78,31 @@ class MenuList extends React.Component {
 			{
 				text: "Sair",
 				icon: "exit",
-				link: "/sair",
-				active: false
+				active: false,
+				action: () => {
+					window.MessageBox.show({
+						title: "Sair do SAT-Flex",
+						text: "Você tem certeza que deseja encerrar o SAT-Flex agora?",
+						buttons: [
+							{
+								text: "Sim",
+								color: "green",
+								icon: "thumbs-up",
+								onClick: () => {
+									window.close();
+								}
+							},
+							{
+								text: "Não",
+								color: "red",
+								icon: "thumbs-down",
+								onClick: () => {
+									window.MessageBox.hide();
+								}
+							}
+						]
+					});
+				}
 			},
 		]
 	}
@@ -88,7 +111,7 @@ class MenuList extends React.Component {
 		return <div className="menu-list">
 			<ul>
 				{this.listItem().map((item, i) => {
-					return <MenuListItem key={i} pKey={i} text={item.text} icon={item.icon} link={item.link} activeItem={this.state.activeItem} changeActiveItem={this.changeActiveItem} />
+					return <MenuListItem key={i} pKey={i} item={item} activeItem={this.state.activeItem} changeActiveItem={this.changeActiveItem} />
 				})}
 			</ul>
 		</div>
@@ -104,20 +127,34 @@ class MenuListItem extends React.Component {
 	}
 
 	onClick(){
-		this.props.changeActiveItem(this.props.text);
+		if(this.props.item.link){
+			this.props.changeActiveItem(this.props.item.text);
+		}
+		if(this.props.item.action){
+			this.props.item.action();
+		}
 	}
 
 	render(){
 		let className = null;
-		if(this.props.activeItem === this.props.text){
+		if(this.props.activeItem === this.props.item.text){
 			className = "active";
 		}
 
-		return (
-			<Link to={this.props.link} onClick={this.onClick} className={className}>
-				<Icon name={this.props.icon} />
-				<span>{this.props.text}</span>
-			</Link>
-		);
+		if(this.props.item.link){
+			return (
+				<Link to={this.props.item.link} onClick={this.onClick} className={className}>
+					<Icon name={this.props.item.icon} />
+					<span>{this.props.item.text}</span>
+				</Link>
+			);
+		}else{
+			return (
+				<a onClick={this.onClick} className={className}>
+					<Icon name={this.props.item.icon} />
+					<span>{this.props.item.text}</span>
+				</a>
+			);
+		}
 	}
 }

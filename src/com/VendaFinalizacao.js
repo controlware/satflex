@@ -18,7 +18,7 @@ export default class VendaFinalizacao extends React.Component {
 		super(props);
 
 		this.state = {
-			documentopagamentos: [],
+			documentopagamentos: props.listaDocumentoPagamento,
 			formaspagamento: [],
 			show: false
 		};
@@ -50,6 +50,7 @@ export default class VendaFinalizacao extends React.Component {
 
 	componentWillReceiveProps(nextProps){
 		this.setState({
+			documentopagamentos: nextProps.listaDocumentoPagamento,
 			show: nextProps.show
 		});
 	}
@@ -108,9 +109,9 @@ export default class VendaFinalizacao extends React.Component {
 
 	render(){
 		this.totalpago = 0;
-		this.state.documentopagamentos.forEach((documentopagamento) => {
+		for(let documentopagamento of this.state.documentopagamentos){
 			this.totalpago += documentopagamento.totalpagamento;
-		});
+		}
 		if(this.totalpago > this.props.totaldocumento){
 			this.totalrestante = 0;
 			this.totaltroco = this.totalpago - this.props.totaldocumento;

@@ -1,5 +1,37 @@
 #content {
 	padding-right: 15px;
+
+	&.operacao-OR {
+		#vendadetalhe-cabecalho {
+			background-color: #3e97a5;
+		}
+		#detalhevenda-corpo {
+			background-color: #fdfff7;
+		}
+		#detalhevenda-rodape {
+			background-color: #3e97a5;
+		}
+
+		button {
+			&.btn-success {
+				background-color: #1c6571;
+				border-color: #18555f;
+
+				&:hover {
+					background-color: #18555f;
+				}
+			}
+
+			&.btn-danger {
+				background-color: #ce87a4;
+				border-color: #a0617b;
+
+				&:hover {
+					background-color: #a0617b;
+				}
+			}
+		}
+	}
 }
 
 #pesquisa-limpar {

@@ -1,0 +1,6 @@
+.list-group-item {
+	&.active {
+		background-color: #1880e2;
+		box-shadow: inset 0px -20px 50px -10px rgba(0, 0, 0, 0.15);
+	}
+}

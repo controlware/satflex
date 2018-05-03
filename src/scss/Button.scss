@@ -55,6 +55,38 @@
 			font-size: 22px;
 		}
 	}
+
+	&.btn-xl {
+		height: 94px;
+		span:not(.icon) {
+			font-size: 22px;
+		}
+		.icon {
+			font-size: 42px;
+		}
+	}
+
+	&.btn-xxl {
+		height: 124px;
+		padding: 0px 30px;
+		span:not(.icon) {
+			font-size: 24px;
+		}
+		.icon {
+			font-size: 104px;
+			left: 10px;
+			margin-left: 0px;
+			opacity: 0.2;
+			position: absolute;
+			top: 10px;
+
+			&.mif-tools, &.mif-widgets {
+				font-size: 124px;
+				left: 0px;
+				top: 0px;
+			}
+		}
+	}
 }
 
 .btn-color-blue {

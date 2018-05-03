@@ -22,12 +22,12 @@ export default class Button extends React.Component {
 					case "left":
 						innerButton = [
 							<Icon name={this.props.icon} key="0" />,
-							<span className={"ml-" + mlSize} key="1">{this.props.text}</span>
+							<span className={"ml-" + mlSize} key="1" dangerouslySetInnerHTML={{__html: this.props.text}}></span>
 						];
 						break;
 					case "right":
 						innerButton = [
-							<span className="mr-2" key="0">{this.props.text}</span>,
+							<span className="mr-2" key="0" dangerouslySetInnerHTML={{__html: this.props.text}}></span>,
 							<Icon name={this.props.icon} key="1" />
 						];
 						break;
@@ -36,7 +36,7 @@ export default class Button extends React.Component {
 				innerButton = <Icon name={this.props.icon} />;
 			}
 		}else{
-			innerButton = <span>{this.props.text}</span>;
+			innerButton = <span dangerouslySetInnerHTML={{__html: this.props.text}}></span>;
 		}
 
 		var className = [

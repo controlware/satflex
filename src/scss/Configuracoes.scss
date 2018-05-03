@@ -1,0 +1,12 @@
+.serialnumber {
+	bottom: 15px;
+	display: inline-block;
+	left: calc(50% - 40px);
+	position: fixed;
+	text-align: center;
+	width: 200px;
+
+	small {
+		text-transform: uppercase;
+	}
+}

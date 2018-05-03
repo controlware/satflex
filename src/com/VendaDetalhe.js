@@ -6,6 +6,8 @@ import Button from "./Button.js";
 import Col from "./Col.js";
 import Hr from "./Hr.js";
 import Icon from "./Icon.js";
+import ListGroup from "./ListGroup.js";
+import ListItem from "./ListItem.js";
 import Row from "./Row.js";
 
 import "../css/VendaDetalhe.css";
@@ -40,9 +42,28 @@ export default class VendaDetalhe extends React.Component {
 	render(){
 		return (
 			<div className="vendadetalhe" style={{height: this.state.height}}>
-				<VendaDetalheCabecalho cancelarVendaAtual={this.props.cancelarVendaAtual} listaDocumentoProduto={this.props.listaDocumentoProduto} />
-				<VendaDetalheCorpo aumentarQuantidade={this.props.aumentarQuantidade} diminuirQuantidade={this.props.diminuirQuantidade} editarProduto={this.props.editarProduto} listaDocumentoProduto={this.props.listaDocumentoProduto} removerProduto={this.props.removerProduto} />
-				<VendaDetalheRodape cpfcnpj={this.props.cpfcnpj} abrirFinalizacao={this.props.abrirFinalizacao} informarCPF={this.props.informarCPF} listaDocumentoProduto={this.props.listaDocumentoProduto} />
+				<VendaDetalheCabecalho
+					cancelarUltimaVenda={this.props.cancelarUltimaVenda}
+					cancelarVendaAtual={this.props.cancelarVendaAtual}
+					listaDocumentoProduto={this.props.listaDocumentoProduto}
+					operacao={this.props.operacao}
+					reimprimirCupom={this.props.reimprimirCupom}
+					trocarOperacao={this.props.trocarOperacao}
+				/>
+				<VendaDetalheCorpo
+					aumentarQuantidade={this.props.aumentarQuantidade}
+					diminuirQuantidade={this.props.diminuirQuantidade}
+					editarProduto={this.props.editarProduto}
+					listaDocumentoProduto={this.props.listaDocumentoProduto}
+					removerProduto={this.props.removerProduto}
+				/>
+				<VendaDetalheRodape
+					abrirFinalizacao={this.props.abrirFinalizacao}
+					cpfcnpj={this.props.cpfcnpj}
+					informarCPF={this.props.informarCPF}
+					listaDocumentoProduto={this.props.listaDocumentoProduto}
+					operacao={this.props.operacao}
+				/>
 			</div>
 		)
 	}
@@ -53,6 +74,8 @@ class VendaDetalheCabecalho extends React.Component {
 	constructor(props){
 		super(props);
 
+		this.alternarOrcamento = this.alternarOrcamento.bind(this);
+		this.alternarVenda = this.alternarVenda.bind(this);
 		this.onClickDocument = this.onClickDocument.bind(this);
 		this.onClickIcon = this.onClickIcon.bind(this);
 
@@ -65,6 +88,14 @@ class VendaDetalheCabecalho extends React.Component {
 			height: "show"
 		}, 350);
 		this.exibindoOpcoes = true;
+	}
+
+	alternarOrcamento(){
+		this.props.trocarOperacao("OR");
+	}
+
+	alternarVenda(){
+		this.props.trocarOperacao("CU");
 	}
 
 	componentDidMount(){
@@ -99,21 +130,33 @@ class VendaDetalheCabecalho extends React.Component {
 
 	render(){
 		let countLista = this.props.listaDocumentoProduto.length;
+		let operacao = this.props.operacao;
+
+		let titulo = null;
+		switch(operacao){
+			case "OR":
+				titulo = "Orçamento";
+				break;
+			case "CU":
+			default:
+				titulo = "Detalhe da venda";
+				break;
+		}
 
 		return (
 			<div className="vendadetalhe-cabecalho">
 				<div>
-					<h4>Detalhe da venda</h4>
+					<h4>{titulo}</h4>
 					<Icon name="menu" onClick={this.onClickIcon} ref={(icon) => { this.icon = icon }} />
 					<div className={"vendadetalhe-cabecalho-opcoes"} ref={(opcoes) => { this.opcoes = opcoes }}>
-						<ul className="list-group">
-							<li className={"list-group-item" + (countLista === 0 ? " d-none" : "")} onClick={this.props.cancelarVendaAtual}>Cancelar venda atual</li>
-							<li className={"list-group-item" + (countLista === 0 ? "" : " d-none")}>Cancelar última venda</li>
-							<li className="list-group-item">Reimprimir cupom</li>
-							<li className="list-group-item">Alternar para venda</li>
-							<li className="list-group-item">Alternar para orçamento</li>
-							<li className="list-group-item">Efetivar um orçamento</li>
-						</ul>
+						<ListGroup>
+							<ListItem className={countLista === 0 ? " d-none" : ""} onClick={this.props.cancelarVendaAtual}>Cancelar venda atual</ListItem>
+							<ListItem className={countLista === 0 ? "" : " d-none"} onClick={this.props.cancelarUltimaVenda}>Cancelar última venda</ListItem>
+							<ListItem onClick={this.props.reimprimirCupom}>Reimprimir cupom</ListItem>
+							<ListItem className={operacao !== "CU" ? "" : " d-none"} onClick={this.alternarVenda}>Alternar para venda</ListItem>
+							<ListItem className={operacao !== "OR" ? "" : " d-none"} onClick={this.alternarOrcamento}>Alternar para orçamento</ListItem>
+							<ListItem>Efetivar um orçamento</ListItem>
+						</ListGroup>
 					</div>
 				</div>
 			</div>
@@ -239,12 +282,14 @@ class VendaDetalheRodape extends React.Component {
 								<div>Total dos itens <strong><small>R$</small>{totalbruto.format(2, ",", ".")}</strong></div>
 								<div>Total de desconto <strong><small>R$</small>{totaldesconto.format(2, ",", ".")}</strong></div>
 							</div>
-							<div className={"vendadetalhe-rodape-cpfcnpj" + (this.state.cpfcnpj ? "" : " d-none")} style={{position: "absolute", bottom: "0px"}}>
-								<span>CPF: <strong>{this.state.cpfcnpj}</strong></span>
-								<Button text="alterar" color="green" size="xs" className="ml-2" onClick={this.props.informarCPF} />
-							</div>
-							<div className={this.state.cpfcnpj ? " d-none" : ""} style={{position: "absolute", bottom: "0px"}}>
-								<Button text="Informar CPF" color="green" size="sm" onClick={this.props.informarCPF} />
+							<div className={this.props.operacao === "CU" ? "" : "d-none"}>
+								<div className={"vendadetalhe-rodape-cpfcnpj" + (this.state.cpfcnpj ? "" : " d-none")} style={{position: "absolute", bottom: "0px"}}>
+									<span>CPF: <strong>{this.state.cpfcnpj}</strong></span>
+									<Button text="alterar" color="green" size="xs" className="ml-2" onClick={this.props.informarCPF} />
+								</div>
+								<div className={this.state.cpfcnpj ? " d-none" : ""} style={{position: "absolute", bottom: "0px"}}>
+									<Button text="Informar CPF" color="green" size="sm" onClick={this.props.informarCPF} />
+								</div>
 							</div>
 						</Col>
 						<Col size="6">

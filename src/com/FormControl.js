@@ -41,7 +41,12 @@ export default class FormControl extends React.Component {
 		delete props.InformarValor;
 
 		let value = props.value;
-		if(value === undefined || value === null){
+		if(value === null){
+			value = "";
+		}
+
+		// Tratamento feito para para os modais de cadastro de produto e categoria
+		if(value === undefined && props.id && props.id.substr(0, 5) === "modal"){
 			value = "";
 		}
 
@@ -54,7 +59,10 @@ export default class FormControl extends React.Component {
 
 		props.className = className.join(" ");
 		props.value = value;
-		props.onFocus = this.onFocus;
+		
+		if(this.onFocus === undefined){
+			props.onFocus = this.onFocus;
+		}
 
 		switch(props.type){
 			// Se o componente for do tipo Checkbox
@@ -75,9 +83,15 @@ export default class FormControl extends React.Component {
 			// Se o componente for do tipo Select
 			case "select":
 				delete props.type;
-
 				return (
 					<Select {...props} />
+				)
+
+			// Se o componente for do tipo Select
+			case "textarea":
+				delete props.type;
+				return (
+					<textarea {...props}></textarea>
 				)
 
 			// Se o componente for algum input padrao que nao necessita ser personalizado

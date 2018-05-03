@@ -1,15 +1,15 @@
 export function Client(){
-	return window.pg.Client(Configuration());
+	return window.require("pg").Client(Configuration());
 }
 
 export function Pool(){
-	return window.pg.Pool(Configuration());
+	return window.require("pg").Pool(Configuration());
 }
 
 function Configuration(){
 	return {
 		user: "postgres",
-		host: "localhost",
+		host: "127.0.0.1",
 		database: "satflex",
 		password: "postgres",
 		port: 5432,

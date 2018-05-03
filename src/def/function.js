@@ -1,8 +1,44 @@
+export function currentTimestamp(){
+	let timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
+	let localISOTimestamp = (new Date(Date.now() - timezoneOffset)).toISOString();
+	return localISOTimestamp;
+};
+
+
 export function defaultMessageBoxError(text){
 	window.MessageBox.show({
 		title: "Houve uma falha",
 		text: text
 	});
+}
+
+export function serialNumber(callback){
+	let os = window.require("os");
+	if(os.platform() === "win32"){
+		let command = "wmic diskdrive get SerialNumber";
+		window.require("child_process").exec(command, (error, stdout, stderr) => {
+			if(error){
+				throw error;
+			}
+			stdout = stdout.trim().split(" ").splice(-1)[0];
+			callback(stdout);
+		});
+	}else{
+		let serialNumber = window.require("serial-number");
+		serialNumber((err, value) => {
+			callback(value);
+		});
+	}
+}
+
+export function sleep(ms){
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function temporaryDirectory(){
+	let os = window.require("os");
+	let dirname = os.homedir() + "/.satflex-temp-files/";
+	return dirname;
 }
 
 export function validarCNPJ(cnpj){
@@ -81,20 +117,30 @@ export function validarCPF(cpf){
 	return true;
 }
 
-export function valorParametro(Pool, grupo, nome, success, fail){
-	let query = "SELECT valor FROM parametro WHERE grupo = $1 AND nome = $2";
-	Pool.query(query, [grupo, nome], (err, res) => {
-		if(err){
-			if(typeof(fail) === "function"){
-				return fail(err);
-			}
-		}
-		let valor = null;
-		if(res.rows.length > 0){
-			valor = res.rows[0].valor;
-		}
-		if(typeof(success) === "function"){
-			return success(valor);
-		}
-	});
+export async function valorParametro(Pool, grupo, nome, callback){
+	let {rows} = await Pool.query("SELECT valor FROM parametro WHERE grupo = $1 AND nome = $2", [grupo, nome]);
+	let valor = rows[0].valor;
+	if(typeof callback === "function"){
+		callback(valor);
+	}
+	return valor;
+}
+
+export function writeTemporary(filename, content){
+	let fs = window.require("fs");
+
+	let dirname = temporaryDirectory();
+	if(!fs.existsSync(dirname)){
+		fs.mkdirSync(dirname);
+	}
+
+	let finalName = dirname + filename;
+
+	let encode = undefined;
+	if(filename.substr(-4) === ".zip"){
+		encode = "binary";
+	}
+
+	fs.writeFileSync(finalName, content, encode);
+	return finalName;
 }
