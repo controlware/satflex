@@ -233,11 +233,9 @@ export default class SAT {
 		writeTemporary("venda.xml", xml);
 
 		// Carrega a biblioteca correta do fabricante
-		console.log("1");
-		let ffi = window.require("ffi");
-		console.log("2");
 		switch(paramSATModelo){
 			case "sweda":
+				let ffi = window.require("ffi");
 				let libname = (platform === "window" ? "SATDLL.dll" : "libSATDLL.so");
 				let filename = "../lib/sat/sweda/" + platform + "/" + arch + "/" + filename;
 				console.log(filename);

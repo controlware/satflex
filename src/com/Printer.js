@@ -103,22 +103,40 @@ export default class Printer {
 
 	// Imprime um texto em uma impressora
 	async imprimir(texto, nome){
-		let fs = window.fs;
-
 		if(texto === undefined || texto === null){
 			texto = await this.conteudo();
 		}
-		nome = (nome === undefined ? this.nome : nome);
+		nome = (nome === undefined ? this.nome : nome).toUpperCase();
 
-		writeTemporary("printer.txt", texto);
+		let filename = writeTemporary("printer.txt", texto);
 
-		let paramImpressoraModelo = await valorParametro(this.Pool, "IMPRESSORA", "MODELO");
-		if(paramImpressoraModelo === "nenhum"){
+		if(this.modelo === null){
+			this.modelo = await valorParametro(this.Pool, "IMPRESSORA", "MODELO");
+		}
+		if(this.modelo === "nenhum"){
 			return true;
 		}
 
-		await fs.writeFileSync(nome, texto);
 
+
+		/*
+		let SerialPort = window.require("serialport");
+
+		let port = new SerialPort(nome, {
+			baudRate: 2400,
+			dataBits: 8,
+			parity: "none",
+			stopBits: 1
+		}, (err) => {
+			if(err) throw err;
+		});
+
+		port.on("open", function(){
+			port.write(texto.byteList, (err) => {
+				if(err) throw err;
+			});
+		});
+		*/
 		return true;
 	}
 

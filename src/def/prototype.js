@@ -14,6 +14,14 @@ Number.prototype.format = function(c, d, t){
 	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 };
 
+// Retorna um array com o codigo de cada caracter do texto
+String.prototype.byteList = function(text){
+	return text.split("").map(function(c){
+		return c.charCodeAt(0);
+	});
+};
+
+
 // Preenche com o caracter desejado centralizando o texto
 String.prototype.cpad = function(length, char){
     let value = this;
