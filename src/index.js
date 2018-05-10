@@ -41,10 +41,6 @@ class App extends React.Component {
 		};
 	}
 
-	componentDidMount(){
-		window.require("electron").remote.getCurrentWindow().openDevTools();
-	}
-
 	render(){
 		return (
 			<div>

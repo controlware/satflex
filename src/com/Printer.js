@@ -117,7 +117,7 @@ export default class Printer {
 			return true;
 		}
 
-
+		
 
 		/*
 		let SerialPort = window.require("serialport");
