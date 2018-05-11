@@ -103,6 +103,7 @@ export default class Printer {
 
 	// Imprime um texto em uma impressora
 	async imprimir(texto, nome){
+/*
 		if(texto === undefined || texto === null){
 			texto = await this.conteudo();
 		}
@@ -116,10 +117,7 @@ export default class Printer {
 		if(this.modelo === "nenhum"){
 			return true;
 		}
-
-		
-
-		/*
+*/
 		let SerialPort = window.require("serialport");
 
 		let port = new SerialPort(nome, {
@@ -136,7 +134,7 @@ export default class Printer {
 				if(err) throw err;
 			});
 		});
-		*/
+
 		return true;
 	}
 
