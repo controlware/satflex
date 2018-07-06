@@ -397,7 +397,13 @@ export default class Venda extends React.Component {
 
 				// Transmite o documento atraves do SAT
 				let sat = new SAT(client);
-				await sat.transmitirDocumento(iddocumento);
+				let retorno = await sat.transmitirDocumento(iddocumento);
+				if(retorno === false){
+					throw new Error(sat.error);
+				}
+
+				// Atualiza os dados do documento fiscal
+				await client.query("UPDATE documento SET xml = $1, chave = $2, numero = $3 WHERE iddocumento = $4", [retorno.xml, retorno.chave, retorno.numero, iddocumento]);
 			}
 
 			// Confirma a transacao do banco de dados
@@ -457,9 +463,9 @@ export default class Venda extends React.Component {
 			// Prepara a tela para uma nova venda
 			this.reiniciar();
 		}catch(err){
+			console.error(err);
 			await client.query("ROLLBACK");
 			defaultMessageBoxError(err.message);
-			console.error(err.stack);
 		}finally{
 			client.release();
 			window.Loading.hide();

@@ -76,6 +76,7 @@ export default class EscPos {
 
 	// Reinicia as configuracoes para os valores padroes
 	reset(){
+		this.content = [];
 		this.content.push(ESC + String.fromCharCode(0)); // Espaco entre linhas no tamanho padrao
 		this.content.push(ESC + " " + String.fromCharCode(0)); // Espaco entre os caracteres
 		this.content.push(ESC + "M" + String.fromCharCode(this.font)); // Estilo da fonte

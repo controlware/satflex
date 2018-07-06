@@ -1,3 +1,4 @@
+import ComDLL from "../com/ComDLL.js";
 import {
 	sleep, valorParametro, writeTemporary
 } from "../def/function.js";
@@ -7,6 +8,75 @@ export default class SAT {
 	constructor(Pool){
 		this.Pool = Pool;
 		this.jsontoxml = require("jsontoxml");
+		this.ComDLL = new ComDLL();
+		this.os = window.require("os");
+		this.fs = window.require("fs");
+
+		this.error = null;
+	}
+
+	// Cancela um documento ativo
+	async cancelarDocumento(iddocumento){
+		// Dados do SO
+		let os = window.require("os");
+		let platform = os.platform();
+		let arch = os.arch();
+
+		// Carrega os parametros
+		let paramSATModelo = await valorParametro(this.Pool, "SAT", "MODELO");
+		let paramSATAtivacao = await valorParametro(this.Pool, "SAT", "ATIVACAO");
+
+		// Carrega o documento
+		let {documento} = await this.carregarDadosDocumento(iddocumento);
+
+		// Cria o XML do documento fiscal a ser enviado para o SAT
+		let xmlEntrada = documento.xml;
+		writeTemporary("cancelamento.xml", xmlEntrada);
+
+		// Define a DLL a ser utilizada
+		let dllPath = ["lib/sat", paramSATModelo, platform, arch].join("/");
+
+		// Carrega a biblioteca correta do fabricante
+		switch(paramSATModelo){
+			case "controlid":
+				dllPath += "/SAT.dll";
+				break;
+			case "sweda":
+				dllPath += "/SATDLL.dll";
+				break;
+			default:
+				return true;
+		}
+
+		let retorno = null;
+		let arrRetorno = null;
+		while(retorno === null || arrRetorno[1] === "06098"){
+			if(retorno !== null){
+				await sleep(500);
+			}
+			retorno = this.ComDLL.execute(dllPath, "CancelarUltimaVenda", [paramSATAtivacao, btoa(xmlEntrada)]);
+			if(retorno === false){
+				return false;
+			}
+			arrRetorno = retorno.split("|");
+		}
+
+		if(!this.validarRetorno(retorno)){
+			return false;
+		}
+
+		let xmlSaida = atob(arrRetorno[6]);
+		let chave = arrRetorno[8].trim();
+
+		if(xmlSaida.length === 0 && paramSATModelo === "sweda"){
+			arrRetorno = this.fs.readFileSync("C:/Sweda/Retorno.txt").toString();
+			xmlSaida = atob(arrRetorno[6]);
+		}
+
+		return {
+			xmlcanc: xmlSaida,
+			chavecanc: chave
+		};
 	}
 
 	async carregarDadosDocumento(iddocumento){
@@ -66,6 +136,7 @@ export default class SAT {
 
 		let paramDesenvolvedoraCNPJ = await valorParametro(this.Pool, "DESENVOLVEDORA", "CNPJ");
 		let paramDesenvolvedoraAssinatura = await valorParametro(this.Pool, "DESENVOLVEDORA", "ASSINATURA");
+		let paramSATAmbiente = await valorParametro(this.Pool, "SAT", "AMBIENTE");
 		let paramSATCaixa = await valorParametro(this.Pool, "SAT", "CAIXA");
 		let paramEmitenteCNPJ = await valorParametro(this.Pool, "EMITENTE", "CNPJ");
 		let paramEmitenteIE = await valorParametro(this.Pool, "EMITENTE", "IE");
@@ -77,7 +148,8 @@ export default class SAT {
 			children: {
 				"CNPJ": paramDesenvolvedoraCNPJ.removeFormat(),
 				"signAC": paramDesenvolvedoraAssinatura,
-				"numeroCaixa": paramSATCaixa.lpad("0", 3),
+				"numeroCaixa": paramSATCaixa.lpad(3, "0"),
+				"tpAmb": paramSATAmbiente
 			}
 		};
 
@@ -104,9 +176,31 @@ export default class SAT {
 		};
 
 		let dets = documentoprodutos.map((documentoproduto) => {
+			let prod = [
+				{name: "cProd", text: documentoproduto.idproduto},
+				{name: "xProd", text: documentoproduto.descricao},
+				{name: "NCM", text: documentoproduto.codigoncm.removeFormat()},
+				{name: "CFOP", text: documentoproduto.cfop.removeFormat()},
+				{name: "uCom", text: (documentoproduto.balanca === "S" ? "KG" : "UN")},
+				{name: "qCom", text: documentoproduto.quantidade.format(4, ".", "")},
+				{name: "vUncom", text: documentoproduto.preco},
+				{name: "indRegra", text: "T"},
+				{name: "vDesc", text: documentoproduto.totaldesconto},
+				{name: "vOutro", text: documentoproduto.totalacrescimo}
+			];
+			if(documentoproduto.cest.length > 0){
+				prod.push({
+					name: "obsFiscoDet",
+					attrs: {"xCampoDet": "Cod. CEST"},
+					children: {
+						"xTextoDet": documentoproduto.cest.removeFormat()
+					}
+				});
+			}
+
 			let ICMS = {};
 			if(["102", "300", "400", "500"].indexOf(documentoproduto.csosn) > -1){
-				ICMS = {"Orig": documentoproduto.origem, "CSOSN": documentoproduto.csosn};
+				ICMS = {"ICMSSN102": {"Orig": documentoproduto.origem, "CSOSN": documentoproduto.csosn}};
 			}
 
 			let PIS = {};
@@ -139,18 +233,7 @@ export default class SAT {
 				name: "det",
 				attrs: {"nItem": documentoproduto.sequencial},
 				children: {
-					"prod": {
-						"cProd": documentoproduto.idproduto,
-						"xProd": documentoproduto.descricao,
-						"NCM": documentoproduto.codigoncm.removeFormat(),
-						"CFOP": documentoproduto.cfop.removeFormat(),
-						"uCom": (documentoproduto.balanca === "S" ? "KG" : "UN"),
-						"qCom": documentoproduto.quantidade.format(4, ".", ""),
-						"vUncom": documentoproduto.preco,
-						"indRegra": "T",
-						"vDesc": documentoproduto.totaldesconto,
-						"vOutro": documentoproduto.totalacrescimo
-					},
+					"prod": prod,
 					"imposto": {
 						"ICMS": ICMS,
 						"PIS": PIS,
@@ -197,7 +280,7 @@ export default class SAT {
 			name: "infCFe",
 			attrs: {"versaoDadosEnt": "0.07"},
 			children: infCFeChildren
-		}]
+		}];
 
 		let xml = [{
 			name: "CFe",
@@ -229,40 +312,229 @@ export default class SAT {
 		let paramSATAtivacao = await valorParametro(this.Pool, "SAT", "ATIVACAO");
 
 		// Cria o XML do documento fiscal a ser enviado para o SAT
-		let xml = await this.gerarXMLDocumento(iddocumento);
-		writeTemporary("venda.xml", xml);
+		let xmlEntrada = await this.gerarXMLDocumento(iddocumento);
+		writeTemporary("venda.xml", xmlEntrada);
+
+		// Define a DLL a ser utilizada
+		let dllPath = ["lib/sat", paramSATModelo, platform, arch].join("/");
 
 		// Carrega a biblioteca correta do fabricante
 		switch(paramSATModelo){
+			case "controlid":
+				dllPath += "/SAT.dll";
+				break;
 			case "sweda":
-				let ffi = window.require("ffi");
-				let libname = (platform === "window" ? "SATDLL.dll" : "libSATDLL.so");
-				let filename = "../lib/sat/sweda/" + platform + "/" + arch + "/" + filename;
-				console.log(filename);
-				let libSAT = ffi.Library(filename, {
-					"ConsultarSAT": ["string", ["int"]]
-				});
-				console.log('ConsultarSAT:\n' + libSAT.ConsultarSAT(this.novoNumSessao()) + '\n');
+				dllPath += "/SATDLL.dll";
 				break;
 			default:
 				return true;
 		}
-		/*
-		let libSAT = null;
 
-		// Tratamento para o erro "SAT em processamento"
 		let retorno = null;
-		let retornoValores = [];
-		while(retorno === null || retornoValores[1] === "06098"){
+		let arrRetorno = null;
+		while(retorno === null || arrRetorno[1] === "06098"){
 			if(retorno !== null){
 				await sleep(500);
 			}
-
-			// Envia os dados de venda
-			retorno = libSAT.enviarDadosVenda(this.novoNumSessao(), paramSATAtivacao, xml);
-			retornoValores = retorno.split("|");
+			retorno = this.ComDLL.execute(dllPath, "EnviarDadosVenda", [paramSATAtivacao, btoa(xmlEntrada)]);
+			if(retorno === false){
+				return false;
+			}
+			arrRetorno = retorno.split("|");
 		}
-		*/
+
+		if(!this.validarRetorno(retorno)){
+			return false;
+		}
+
+		let xmlSaida = atob(arrRetorno[6]);
+		let chave = arrRetorno[8].trim();
+		let numero = chave.substr(-13, 6);
+
+		if(xmlSaida.length === 0 && paramSATModelo === "sweda"){
+			arrRetorno = this.fs.readFileSync("C:/Sweda/Retorno.txt").toString();
+			xmlSaida = atob(arrRetorno[6]);
+		}
+
+		return {
+			xml: xmlSaida,
+			chave: chave,
+			numero: numero
+		};
+	}
+
+	validarRetorno(retorno){
+		let arrRetorno = retorno.split("|");
+
+		this.error = null;
+		let sucesso = false;
+
+		switch(arrRetorno[1]){
+			/*
+			 * Metodo: AtivarSAT
+			 */
+			case "04000":
+				sucesso = true;
+				break;
+			case "04001":
+				this.error = "Erro na criação do certificado. Processo de ativação foi interrompido.";
+				break;
+			case "04002":
+				this.error = "SEFAZ não reconhece este SAT (CNPJ inválido). Verificar junto a SEFAZ o CNPJ cadastrado.";
+				break;
+			case "04003":
+				this.error = "SAT já ativado.";
+				break;
+			case "04004":
+				this.error = "SAT bloqueado por cessação de uso.";
+				break;
+			case "04005":
+				this.error = "Erro de comunicação com a SEFAZ. Tente novamente.";
+				break;
+			case "04006": // CSR ICP-BRASIL criado com sucesso
+				sucesso = true;
+				break;
+			case "04007":
+				this.error = "Processo de criação do CSR para certificação ICP-BRASIL falhou.";
+				break;
+			case "04098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "04099":
+				this.error = "Erro desconhecido na ativação.";
+				break;
+			/*
+			 * Metodo: EnviarDadosVenda
+			 */
+			case "06000":
+				sucesso = true;
+				break;
+			case "06001":
+				this.error = "Código de ativação inválido.";
+				break;
+			case "06002":
+				this.error = "SAT ainda não ativado.";
+				break;
+			case "06003":
+				this.error = "SAT não vinculado ao AC.";
+				break;
+			case "06004":
+				this.error = "Vinculação do AC não confere.";
+				break;
+			case "06005":
+				this.error = "Tamanho do CF-e-SAT superior a 1,5MB. Dividir CF-e-SAT em dois ou mais documentos.";
+				break;
+			case "06006":
+				this.error = "SAT bloqueado pelo contribuinte. Não é possível realizar venda.";
+				break;
+			case "06007":
+				this.error = "SAT bloqueado pela SEFAZ. Não é possível realizar venda.";
+				break;
+			case "06008":
+				this.error = "SAT bloqueado por falta de comunicação. Não é possível realizar venda até ser restabelecida a comunicação com a SEFAZ.";
+				break;
+			case "06009":
+				this.error = "SAT bloqueado, código de ativação incorreto.";
+				break;
+			case "06010":
+				this.error = "Erro de validação do conteúdo.";
+				break;
+			case "06098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "06099":
+				this.error = "Erro desconhecido na emissão.";
+				break;
+			/*
+			 * Metodo: CancelarUltimaVenda
+			 */
+			case "07000":
+				sucesso = true;
+				break;
+			case "07001":
+				this.error = "Código de ativação inválido.";
+				break;
+			case "07002":
+				this.error = "Cupom inválido.";
+				break;
+			case "07003":
+				this.error = "SAT bloqueado pelo contribuinte.";
+				break;
+			case "07004":
+				this.error = "SAT bloqueado pela SEFAZ.";
+				break;
+			case "07005":
+				this.error = "SAT bloqueado por falta de comunicação.";
+				break;
+			case "07006":
+				this.error = "SAT bloqueado, código de ativação incorreto.";
+				break;
+			case "07007":
+				this.error = "Erro de validação do conteúdo.";
+				break;
+			case "07098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "07099":
+				this.error = "Erro desconhecido no cancelamento.";
+				break;
+			/*
+			 * Metodo: ConsultarSAT
+			 */
+			case "08000":
+				sucesso = true;
+				break;
+			case "08098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "08099":
+				this.error = "Erro desconhecido.";
+				break;
+			/*
+			 * Metodo: TesteFimAFim
+			 */
+			case "09000":
+				sucesso = true;
+				break;
+			case "09001":
+				this.error = "Código de ativação inválido.";
+				break;
+			case "09002":
+				this.error = "SAT ainda não ativado.";
+				break;
+			case "09098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "09099":
+				this.error = "Erro desconhecido.";
+				break;
+			/*
+			 * Metodo: ConsultarStatusOperacional
+			 */
+			case "10000":
+				sucesso = true;
+				break;
+			case "10001":
+				this.error = "Código de ativação inválido.";
+				break;
+			case "10098":
+				this.error = "SAT em processamento. Tente novamente.";
+				break;
+			case "10099":
+				this.error = "Erro desconhecido.";
+				break;
+			default:
+				this.error = "Erro desconhecido.";
+				break;
+		}
+
+		if((this.error === null || this.error.length === 0) && arrRetorno[3].length > 0){
+			this.error = arrRetorno[3];
+		}
+
+		this.error += " (Código " + arrRetorno[1] + ")";
+
+		return sucesso;
 	}
 
 }

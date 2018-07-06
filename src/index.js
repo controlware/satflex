@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {BrowserRouter as Router, Route} from "react-router-dom";
+import {HashRouter, Route} from "react-router-dom";
 
 import "./lib/bootstrap-4.0.0/bootstrap.js";
 
@@ -44,7 +44,7 @@ class App extends React.Component {
 	render(){
 		return (
 			<div>
-				<Router>
+				<HashRouter>
 					<Route path="/">
 						<div>
 							<Menu />
@@ -60,7 +60,7 @@ class App extends React.Component {
 							</div>
 						</div>
 					</Route>
-				</Router>
+				</HashRouter>
 				<FastMessageModal FastMessageEmitter={this.state.FastMessage} />
 				<InformarValorModal InformarValorEmitter={this.state.InformarValor} />
 				<LoadingElement LoadingEmitter={this.state.Loading} />

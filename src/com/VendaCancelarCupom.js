@@ -6,7 +6,10 @@ import Hr from "./Hr.js";
 import Modal from "./Modal.js";
 import Row from "./Row.js";
 
-import {currentTimestamp, defaultMessageBoxError} from "../def/function.js";
+import Printer from "../com/Printer.js";
+import SAT from "../com/SAT.js";
+
+import {currentTimestamp, defaultMessageBoxError, valorParametro} from "../def/function.js";
 
 export default class VendaCancelarCupom extends React.Component {
 
@@ -26,6 +29,9 @@ export default class VendaCancelarCupom extends React.Component {
 		this.carregarUltimoDocumento = this.carregarUltimoDocumento.bind(this);
 		this.confirmar = this.confirmar.bind(this);
 		this.outroCupom = this.outroCupom.bind(this);
+
+		this.Printer = new Printer(this.props.Pool);
+		this.SAT = new SAT(this.props.Pool);
 	}
 
 	atualizarState(data){
@@ -83,7 +89,7 @@ export default class VendaCancelarCupom extends React.Component {
 		].join(" ");
 
 		let res = await this.props.Pool.query(query, ["CU"]);
-console.log(res);
+
 		if(res.rowCount === 0){
 			this.setState({
 				show: false
@@ -113,32 +119,36 @@ console.log(res);
 		try {
 			window.Loading.show();
 
-			/* ************************************************
-			T R A T A R   C A N C E L A M E N T O   N O   S A T
-			************************************************ */
-			let xmlcanc = null;
-			let chavecanc = null;
+			// Carrega os parametros
+			let paramSATModelo = await valorParametro(this.props.Pool, "SAT", "MODELO");
 
+			// Cancela venda no SAT
+			let retorno = {xmlcanc: null, chavecanc: null};
+			if(paramSATModelo !== "nenhum"){
+				retorno = await this.SAT.cancelarDocumento(this.state.iddocumento);
+				if(retorno === false){
+					throw new Error(this.SAT.error);
+				}
+			}
+
+			// Atualiza tabela no banco de dados
 			let query = [
 				"UPDATE documento SET",
 				"  status = $2, dthrcancelamento = $3,",
 				"  xmlcanc = $4, chavecanc = $5",
 				"WHERE iddocumento = $1"
 			].join(" ");
-
 			let values = [
 				this.state.iddocumento,
 				"C", currentTimestamp(),
-				xmlcanc, chavecanc
+				retorno.xmlcanc, retorno.chavecanc
 			];
-
 			await this.props.Pool.query(query, values);
 
-			/* ************************************************************
-			T R A T A R   I M P R E S S A O   D O   C A N C E L A M E N T O
-			************************************************************ */
+			// Imprime o cupom do cancelamento
+			this.Printer.imprimirDocumento(this.state.iddocumento);
 
-
+			// Mensagem de sucesso
 			window.FastMessage.show("Venda cancelada com sucesso!");
 			this.setState({
 				show: false

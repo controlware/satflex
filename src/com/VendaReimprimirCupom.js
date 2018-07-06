@@ -22,8 +22,9 @@ export default class VendaReimprimirCupom extends React.Component {
 		};
 
 		this.carregarUltimosDocumentos = this.carregarUltimosDocumentos.bind(this);
+		this.imprimir = this.imprimir.bind(this);
 
-		this.Printer = new Printer(this.Pool);
+		this.Printer = new Printer(this.props.Pool);
 	}
 
 	atualizarState(data){
@@ -102,11 +103,14 @@ export default class VendaReimprimirCupom extends React.Component {
 		}
 	}
 
-	imprimir(iddocumento){
-		this.Printer.imprimirDocumento(iddocumento, () => {
+	async imprimir(iddocumento){
+		await this.Printer.imprimirDocumento(iddocumento, () => {
+			this.setState({
+				show: false
+			});
 			window.FastMessage.show("Cupom enviado para impressora com sucesso!");
-		}, (error) => {
-			defaultMessageBoxError(error);
+		}, (err) => {
+			if(err) defaultMessageBoxError(err);
 		});
 	}
 

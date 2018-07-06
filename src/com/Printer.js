@@ -7,6 +7,8 @@ export default class Printer {
 
 	constructor(Pool){
 		this.Pool = Pool;
+		this.os = window.require("os");
+		this.childProcess = window.require("child_process");
 
 		// Usar o metodo "carregarEscPos" para utilizar essa variavel
 		// Nunca usar assim:   let escpos = this.escpos
@@ -118,22 +120,11 @@ export default class Printer {
 			return true;
 		}
 
-		let SerialPort = window.require("serialport");
-
-		let port = new SerialPort(nome, {
-			baudRate: 2400,
-			dataBits: 8,
-			parity: "none",
-			stopBits: 1
-		}, (err) => {
-			if(err) throw err;
-		});
-
-		port.on("open", function(){
-			port.write(texto.byteList, (err) => {
-				if(err) throw err;
-			});
-		});
+		if(this.os.platform() === "win32"){
+			let command = "copy \"" + filename + "\" " + nome;
+			command = command.replaceAll("/", "\\");
+			this.childProcess.execSync(command);
+		}
 
 		return true;
 	}
@@ -177,10 +168,17 @@ export default class Printer {
 
 		let result = false;
 
-		if(this.documento.operacao === "CU"){
-			if(this.documento.status === "A"){
-				result = await this.imprimirDocumentoAtivo();
-			}
+		switch(this.documento.operacao){
+			case "CU":
+				switch(this.documento.status){
+					case "A":
+						result = await this.imprimirDocumentoAtivo();
+						break;
+					case "C":
+						result = await this.imprimirDocumentoCancelado();
+						break;
+				}
+				break;
 		}
 
 		if(result && typeof success === "function"){
@@ -217,22 +215,22 @@ export default class Printer {
 		let hrcriacao = dthrcriacao[1];
 		switch(this.documento.operacao){
 			case "CU":
-				numero = String(this.documento.numero).lpad(6, "0");
+				numero = String(this.documento.numero ? this.documento.numero : this.documento.iddocumento).lpad(6, "0");
 				await this.texto("CUPOM FISCAL ELETRÔNICO - SAT", "center", true);
 				await this.texto("COO: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
 				break;
 			case "NC":
-				numero = String(this.documento.numero).lpad(6, "0");
+				numero = String(this.documento.numero ? this.documento.numero : "").lpad(6, "0");
 				await this.texto("NOTA FISCAL A PARTIR DE CUPOM", "center", true);
 				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
 				break;
 			case "OR":
-				numero = String(this.documento.iddocumento).lpad(6, "0");
+				numero = String(this.documento.iddocumento ? this.documento.iddocumento : "").lpad(6, "0");
 				await this.texto("ORÇAMENTO - SEM VALOR FISCAL", "center", true);
 				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
 				break;
 			case "RE":
-				numero = String(this.documento.numero).lpad(6, "0");
+				numero = String(this.documento.numero ? this.documento.numero : "").lpad(6, "0");
 				await this.texto("NOTA FISCAL DE REMESSA", "center", true);
 				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
 				break;
@@ -322,14 +320,14 @@ export default class Printer {
 			await this.texto(sequencial + " " + descricao + " " + calculo);
 
 			// Verifica se houve desconto no item
-			if(documentoproduto.totaldesconto){
+			if(documentoproduto.totaldesconto > 0){
 				let totaldesconto = "-" + documentoproduto.totaldesconto.format(2, ",", ".");
 				let texto = "    Desconto" + " ".repeat(this.colunas - (12 + totaldesconto.length)) + totaldesconto;
 				await this.texto(texto);
 			}
 
 			// Verifica se houve acrescimo no item
-			if(documentoproduto.totalacrescimo){
+			if(documentoproduto.totalacrescimo > 0){
 				let totalacrescimo = "-" + documentoproduto.totalacrescimo.format(2, ",", ".");
 				let texto = "    Acrescimo" + " ".repeat(this.colunas - (13 + totalacrescimo.length)) + totalacrescimo;
 				await this.texto(texto);
@@ -399,9 +397,6 @@ export default class Printer {
 				await this.alimentar(1);
 				await this.qrcode(qrcode);
 			}
-
-			// Cria uma margem no cupom
-			await this.alimentar(3);
 		}
 
 		// Cria uma margem no cupom
@@ -415,6 +410,144 @@ export default class Printer {
 			if(!this.imprimir()){
 				return false;
 			}
+		}
+	}
+
+	// Imprime um documento ativo
+	async imprimirDocumentoCancelado(numerovias){
+		let paramSATSerie = await valorParametro(this.Pool, "SAT", "SERIE");
+
+		let xml = null;
+		let qrcode = null;
+		let xmlcanc = null;
+		let qrcodecanc = null
+
+		// Carrega o XML do documento
+		if(this.documento.operacao === "CU" && this.documento.xml){
+			xml = require("xml-js").xml2json(this.documento.xml, {compact: true});
+			xml = JSON.parse(xml);
+			if(xml.CFe.infCFe.ide.assinaturaQRCODE){
+				qrcode = xml.CFe.infCFe.ide.assinaturaQRCODE._text;
+			}
+
+			xmlcanc = require("xml-js").xml2json(this.documento.xml, {compact: true});
+			xmlcanc = JSON.parse(xmlcanc);
+			if(xmlcanc.CFe.infCFe.ide.assinaturaQRCODE){
+				qrcodecanc = xmlcanc.CFe.infCFe.ide.assinaturaQRCODE._text;
+			}
+		}
+
+		// Cria o cabecalho
+		await this.imprimirCabecalho();
+
+		// Identificacao do documento
+		let numero = null;
+		let dthrcriacao = this.documento.dthrcriacao.toLocaleString().split(" ");
+		let dtcriacao = dthrcriacao[0];
+		let hrcriacao = dthrcriacao[1];
+		switch(this.documento.operacao){
+			case "CU":
+				numero = String(this.documento.numero ? this.documento.numero : this.documento.iddocumento).lpad(6, "0");
+				await this.texto("CUPOM FISCAL ELETRÔNICO - SAT", "center", true);
+				await this.texto("COO: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
+				break;
+			case "NC":
+				numero = String(this.documento.numero ? this.documento.numero : "").lpad(6, "0");
+				await this.texto("NOTA FISCAL A PARTIR DE CUPOM", "center", true);
+				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
+				break;
+			case "OR":
+				numero = String(this.documento.iddocumento ? this.documento.iddocumento : "").lpad(6, "0");
+				await this.texto("ORÇAMENTO - SEM VALOR FISCAL", "center", true);
+				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
+				break;
+			case "RE":
+				numero = String(this.documento.numero ? this.documento.numero : "").lpad(6, "0");
+				await this.texto("NOTA FISCAL DE REMESSA", "center", true);
+				await this.texto("Número: " + numero + "  Data: " + dtcriacao + "  Hora: " + hrcriacao, "center");
+				break;
+			default:
+				break;
+		}
+		await this.texto("CANCELAMENTO", "center", true);
+		await this.linha();
+
+		// Dados do documento de venda
+		switch(this.documento.operacao){
+			case "CU":
+				await this.texto("Dados do cupom fiscal eletronico cancelado", "center", true);
+				await this.texto("SAT No. " + paramSATSerie, "center");
+				break;
+			case "OR":
+				let orcamento = this.documento.iddocumento.lpad(6, "0");
+				await this.texto("Dados do orçamento cancelado", "center", true);
+				await this.texto("Orçamento No. " + orcamento, "center");
+				break;
+			default:
+				let numero = this.documento.numero.lpad(6, "0");
+				await this.texto("Dados do nota fiscal eletronica cancelada", "center", true);
+				await this.texto("Nota Fiscal No. " + numero, "center");
+				break;
+		}
+
+		await this.texto("TOTAL R$ " + this.documento.totaldocumento.format(2, ",", "."), "center");
+		await this.texto(this.documento.dthrcriacao.toLocaleString(), "center");
+
+		// Verifica se eh um documento fiscal
+		if(this.documento.chave){
+
+			// Chave CFe do documento de venda
+			await this.alimentar(1);
+			let chave = this.documento.chave.substr(-44);
+			await this.texto(chave, "center");
+			await this.barcode(chave.substr(0, 22));
+			await this.alimentar(1);
+			await this.barcode(chave.substr(22));
+
+			// QR Code do documento de venda
+			if(qrcode){
+				await this.alimentar(1);
+				await this.qrcode(qrcode);
+			}
+		}
+
+		// Linha
+		await this.linha();
+
+		if(this.documento.operacao === "CU"){
+			// Dados do documento de cancelamento
+			await this.texto("Dados do cupom fiscal eletronico de cancelamento", "center", true);
+			await this.texto("SAT No. " + paramSATSerie, "center");
+			await this.texto(this.documento.dthrcancelamento.toLocaleString(), "center");
+
+			// Verifica se eh um documento fiscal
+			if(this.documento.chavecanc){
+
+				// Chave CFe do documento de cancelamento
+				await this.alimentar(1);
+				let chave = this.documento.chavecanc.substr(-44);
+				await this.texto(chave, "center");
+				await this.barcode(chave.substr(0, 22));
+				await this.alimentar(1);
+				await this.barcode(chave.substr(22));
+
+				// QR Code do documento de cancelamento
+				if(qrcodecanc){
+					await this.alimentar(1);
+					await this.qrcode(qrcodecanc);
+				}
+			}
+		}
+
+		// Cria uma margem no cupom
+		await this.alimentar(6);
+
+		// Aciona a guilhotina
+		await this.guilhotina();
+
+		// Imprime o documento
+		if(!this.imprimir()){
+			return false;
 		}
 	}
 
@@ -454,13 +587,13 @@ export default class Printer {
 
 		switch(align){
 			case "center":
-				texto.cpad(this.colunas, " ");
+				texto = texto.cpad(this.colunas, " ");
 				break;
 			case "left":
-				texto.lpad(this.colunas, " ");
+				texto = texto.rpad(this.colunas, " ");
 				break;
 			case "right":
-				texto.rpad(this.colunas, " ");
+				texto = texto.lpad(this.colunas, " ");
 				break;
 			default:
 				break;

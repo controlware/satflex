@@ -37,7 +37,7 @@ export function sleep(ms){
 
 export function temporaryDirectory(){
 	let os = window.require("os");
-	let dirname = os.homedir() + "/.satflex-temp-files/";
+	let dirname = os.homedir() + "/SAT-Flex/";
 	return dirname;
 }
 
