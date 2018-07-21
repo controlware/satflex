@@ -21,6 +21,7 @@ export default class Atualizacao {
 		};
 
 		this.fs = window.require("fs");
+		this.git = window.require("gift");
 	}
 
 	atualizarAplicativoParcial(){
