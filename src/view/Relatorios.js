@@ -30,12 +30,12 @@ export default class Relatorios extends React.Component {
 						<Button text="Fechamento" icon="calendar" size="xxl" block={true} onClick={() => {this.setState({redirect: "/fechamento"})}} />
 					</Col>
 					<Col size="3">
-						<Button text="Estatísticas" icon="chart-dots" size="xxl" block={true} />
+						<Button text="Estatísticas" icon="chart-dots" size="xxl" block={true} onClick={() => {this.setState({redirect: "/estatistica"})}} />
 					</Col>
 				</Row>
 				<Row className="mt-4">
 					<Col size="3" offset="3">
-						<Button text="Orçamentos" icon="files-empty" size="xxl" block={true} />
+						<Button text="Orçamentos" icon="files-empty" size="xxl" block={true} disabled={true} onClick={() => {this.setState({redirect: "/relorcamento"})}} />
 					</Col>
 				</Row>
 			</Content>

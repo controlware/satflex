@@ -26,6 +26,8 @@ export default class Printer {
 
 	// Alimenta o papel (medida em linhas)
 	async alimentar(linhas){
+		linhas = (linhas === undefined ? 1 : linhas);
+
 		let escpos = await this.carregarEscPos();
 		escpos.feed(linhas);
 	}
@@ -109,9 +111,6 @@ export default class Printer {
 		if(texto === undefined || texto === null){
 			texto = await this.conteudo();
 		}
-		nome = (nome === undefined ? this.nome : nome).toUpperCase();
-
-		let filename = writeTemporary("printer.txt", texto);
 
 		if(this.modelo === null){
 			this.modelo = await valorParametro(this.Pool, "IMPRESSORA", "MODELO");
@@ -121,7 +120,10 @@ export default class Printer {
 		}
 
 		if(this.os.platform() === "win32"){
-			let command = "copy \"" + filename + "\" " + nome;
+			nome = (nome === undefined ? this.nome : nome);
+
+			let filename = writeTemporary("printer.txt", texto);
+			let command = "copy \"" + filename + "\" " + nome.toUpperCase();
 			command = command.replaceAll("/", "\\");
 			this.childProcess.execSync(command);
 		}
@@ -168,19 +170,17 @@ export default class Printer {
 
 		let result = false;
 
-		switch(this.documento.operacao){
-			case "CU":
-				switch(this.documento.status){
-					case "A":
-						result = await this.imprimirDocumentoAtivo();
-						break;
-					case "C":
-						result = await this.imprimirDocumentoCancelado();
-						break;
-				}
+		switch(this.documento.status){
+			case "A":
+				result = await this.imprimirDocumentoAtivo();
+				break;
+			case "C":
+				result = await this.imprimirDocumentoCancelado();
+				break;
+			default:
 				break;
 		}
-
+		
 		if(result && typeof success === "function"){
 			success();
 		}else if(!result && typeof fail === "function"){

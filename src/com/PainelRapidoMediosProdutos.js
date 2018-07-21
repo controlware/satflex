@@ -30,7 +30,7 @@ export default class PainelRapidoMediosProdutos extends React.Component {
 			}
 			this.setState({
 				categorias: res.rows,
-				categoria: res.rows[0]
+				categoria: (res.rows.length > 0 ? res.rows[0] : null)
 			}, () => {
 				this.carregarProdutos();
 			});
@@ -38,6 +38,9 @@ export default class PainelRapidoMediosProdutos extends React.Component {
 	}
 
 	carregarProdutos(){
+		if(this.state.categoria === null){
+			return;
+		}
 		let query = "SELECT idproduto, descricao, precovariavel, balanca, preco FROM produto WHERE idcategoria = $1 ORDER BY descricao";
 		this.props.Pool.query(query, [this.state.categoria.idcategoria], (err, res) => {
 			if(err){

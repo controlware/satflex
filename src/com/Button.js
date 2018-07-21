@@ -4,6 +4,7 @@ import "../css/Button.css";
 
 export default class Button extends React.Component {
 	static defaultProps = {
+		active: false,
 		block: false,
 		disabled: false,
 		iconPosition: "left",
@@ -48,6 +49,9 @@ export default class Button extends React.Component {
 
 		if(this.props.className){
 			className.push(this.props.className);
+		}
+		if(this.props.active){
+			className.push("active");
 		}
 		if(this.props.block){
 			className.push("btn-block");

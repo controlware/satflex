@@ -1,3 +1,11 @@
+export function applicationDirectory(){
+	return window.require("electron").remote.app.getAppPath();
+}
+
+export function currentDate(){
+	return currentTimestamp().split("T")[0];
+}
+
 export function currentTimestamp(){
 	let timezoneOffset = (new Date()).getTimezoneOffset() * 60000;
 	let localISOTimestamp = (new Date(Date.now() - timezoneOffset)).toISOString();
@@ -12,21 +20,19 @@ export function defaultMessageBoxError(text){
 	});
 }
 
-export function serialNumber(callback){
+export async function serialNumber(){
 	let os = window.require("os");
 	if(os.platform() === "win32"){
 		let command = "wmic diskdrive get SerialNumber";
-		window.require("child_process").exec(command, (error, stdout, stderr) => {
-			if(error){
-				throw error;
-			}
-			stdout = stdout.trim().split(" ").splice(-1)[0];
-			callback(stdout);
-		});
+		let stdout = window.require("child_process").execSync(command).toString();
+		stdout = stdout.trim().split(" ").splice(-1)[0].trim();
+		return stdout;
 	}else{
-		let serialNumber = window.require("serial-number");
-		serialNumber((err, value) => {
-			callback(value);
+		return new Promise((resolve) => {
+			let serialNumber = window.require("serial-number");
+			serialNumber((err, value) => {
+				resolve(value);
+			});
 		});
 	}
 }

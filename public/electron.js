@@ -33,7 +33,6 @@ function createWindow(){
 		width: screenSize.width
 	});
 
-	browserWindow.webContents.openDevTools();
 	browserWindow.loadURL(isDev ? "http://localhost:3000" : `file://${path.join(__dirname, '../build/index.html')}`);
 
 	browserWindow.on("closed", () => {

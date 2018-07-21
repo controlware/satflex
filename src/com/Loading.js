@@ -2,6 +2,8 @@ import React from "react";
 import $ from "jquery";
 import {EventEmitter} from "events";
 
+import Progress from "./Progress.js";
+
 import "../css/Loading.css";
 
 export class LoadingEmitter extends EventEmitter  {
@@ -9,7 +11,8 @@ export class LoadingEmitter extends EventEmitter  {
 		super();
 
 		this.data = {
-			visible: false
+			visible: false,
+			progress: null
 		}
 	}
 
@@ -42,14 +45,21 @@ export class LoadingEmitter extends EventEmitter  {
 	}
 
 	// Esconde a caixa de mensagem
-	hide(){
+	async hide(){
 		this.data.visible = false;
 		this.commitChange();
 	}
 
 	// Exibe a caixa de mensagem
-	show(){
+	async show(){
 		this.data.visible = true;
+		this.data.progress = null;
+		this.commitChange();
+	}
+
+	// Exibe a barra de progresso
+	async progress(value){
+		this.data.progress = value;
 		this.commitChange();
 	}
 }
@@ -86,6 +96,7 @@ export class LoadingElement extends React.Component {
 		return (
 			<div className="Loading">
 				<div className="Loading-Spinner"></div>
+				<Progress value={this.state.progress} color="green" className={this.state.progress === null ? "d-none" : null} />
 			</div>
 		);
 	}

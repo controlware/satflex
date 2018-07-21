@@ -6,9 +6,13 @@ export default class Image extends React.Component {
 
 		if(props.src){
 			let fs = window.require("fs");
-			let ext = props.src.split(".").reverse()[0];
-			let data = fs.readFileSync(props.src, "base64");
-			props.src = "data:image/" + ext + ";base64," + data;
+			if(fs.existsSync(props.src)){
+				let ext = props.src.split(".").reverse()[0];
+				let data = fs.readFileSync(props.src, "base64");
+				props.src = "data:image/" + ext + ";base64," + data;
+			}else{
+				props.src = null;
+			}
 		}
 
 		return (

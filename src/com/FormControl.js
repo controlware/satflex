@@ -21,6 +21,7 @@ export default class FormControl extends React.Component {
 
 	onFocus(){
 		if(this.props.InformarValor){
+			console.log("aqui");
 			let settings = this.props.InformarValor;
 			if(settings.success === undefined){
 				settings.success = (valor) => {
@@ -57,10 +58,14 @@ export default class FormControl extends React.Component {
 			className.push("form-control-" + props.size);
 		}
 
+		if(props.type === "date"){
+			className.push("text-center");
+		}
+
 		props.className = className.join(" ");
 		props.value = value;
-		
-		if(this.onFocus === undefined){
+
+		if(this.props.onFocus === undefined){
 			props.onFocus = this.onFocus;
 		}
 

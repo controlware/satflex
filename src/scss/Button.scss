@@ -92,24 +92,24 @@
 .btn-color-blue {
 	background-color: #1880e2;
 
-	&:hover {
-		background-color: #116fc6;
+	&:focus, &:hover, &.active {
+		background-color: #116fc6 !important;
 	}
 }
 
 .btn-color-green {
 	background-color: #19c433;
 
-	&:hover {
-		background-color: #13a52a;
+	&:focus, &:hover, &.active {
+		background-color: #12a429 !important;
 	}
 }
 
 .btn-color-red {
 	background-color: #e84037;
 
-	&:hover {
-		background-color: #ce352d;
+	&:focus, &:hover, &.active {
+		background-color: #ce352d !important;
 	}
 }
 

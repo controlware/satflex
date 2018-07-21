@@ -1,7 +1,9 @@
+import {applicationDirectory} from  "../def/function.js";
+
 export default class ComDLL {
 
 	constructor(){
-		this.appPath = window.require("electron").remote.app.getAppPath();
+		this.appPath = applicationDirectory();
 		this.childProcess = window.require("child_process");
 		this.fs = window.require("fs");
 

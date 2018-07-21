@@ -14,14 +14,22 @@ import {MessageBoxEmitter, MessageBoxModal} from "./com/MessageBox.js";
 import Categoria from "./view/Categoria.js";
 import Configuracoes from "./view/Configuracoes.js";
 import Contador from "./view/Contador.js";
+import Estatistica from "./view/Estatistica.js";
+import Fechamento from "./view/Fechamento.js";
+import Ferramentas from "./view/Ferramentas.js";
 import Parametro from "./view/Parametro.js";
 import Produto from "./view/Produto.js";
 import Relatorios from "./view/Relatorios.js";
+import RelOrcamento from "./view/RelOrcamento.js";
 import Suporte from "./view/Suporte.js";
 import Venda from "./view/Venda.js";
 
+import ProcessoAutomatico from "./com/ProcessoAutomatico.js";
+
 import "./css/index.css";
 import "./font/gotham/gotham.css";
+
+import {Pool} from "./def/postgresql.js";
 
 class App extends React.Component {
 
@@ -39,6 +47,14 @@ class App extends React.Component {
 			Loading: window.Loading,
 			MessageBox: window.MessageBox
 		};
+
+		this.Pool = new Pool();
+		this.processoAutomatico = new ProcessoAutomatico(this.Pool);
+		window.processoAutomatico = this.processoAutomatico;
+	}
+
+	componentDidMount(){
+		this.processoAutomatico.iniciar();
 	}
 
 	render(){
@@ -53,9 +69,13 @@ class App extends React.Component {
 								<Route path="/categoria" component={Categoria} />
 								<Route path="/configuracao" component={Configuracoes} />
 								<Route path="/contador" component={Contador} />
+								<Route path="/estatistica" component={Estatistica} />
+								<Route path="/fechamento" component={Fechamento} />
+								<Route path="/ferramentas" component={Ferramentas} />
 								<Route path="/parametro" component={Parametro} />
 								<Route path="/produto" component={Produto} />
 								<Route path="/relatorio" component={Relatorios} />
+								<Route path="/relorcamento" component={RelOrcamento} />
 								<Route path="/suporte" component={Suporte} />
 							</div>
 						</div>

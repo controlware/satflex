@@ -48,6 +48,10 @@ $spinner-shadow-color: rgba(0, 0, 0, 0.75);
 		width: $spinner-size;
 	}
 
+	.progress {
+		border-radius: 0px;
+	}
+
 	&::after {
 		content: "Por favor, aguarde...";
 		color: #fff;

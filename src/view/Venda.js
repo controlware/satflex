@@ -64,6 +64,7 @@ export default class Venda extends React.Component {
 		this.aumentarQuantidade = this.aumentarQuantidade.bind(this);
 		this.cancelarUltimaVenda = this.cancelarUltimaVenda.bind(this);
 		this.cancelarVendaAtual = this.cancelarVendaAtual.bind(this);
+		this.carregarOrcamento = this.carregarOrcamento.bind(this);
 		this.carregarTemporario = this.carregarTemporario.bind(this);
 		this.diminuirQuantidade = this.diminuirQuantidade.bind(this);
 		this.editarProduto = this.editarProduto.bind(this);
@@ -218,6 +219,48 @@ export default class Venda extends React.Component {
 				}
 			]
 		});
+	}
+
+	async carregarOrcamento(iddocumento){
+		try{
+			window.Loading.show();
+
+			let queryDocumento = "SELECT iddocumento, cpfcnpj, nomeorcamento FROM documento WHERE operacao = $1 AND iddocumento = $2";
+			let resDocumento = await this.Pool.query(queryDocumento, ["OR", iddocumento]);
+			if(resDocumento.rows.length === 0){
+				throw new Error("Orçamento de número <b>" + iddocumento + "</b> não pôde ser encontrado.");
+			}
+			let documento = resDocumento.rows[0];
+
+			let listaDocumentoProduto = [];
+			let queryDocumentoProduto = "SELECT * FROM documentoproduto WHERE iddocumento = $1";
+			let resDocumentoProduto = await this.Pool.query(queryDocumentoProduto, [documento.iddocumento]);
+			for(let row of resDocumentoProduto.rows){
+				listaDocumentoProduto.push(this.criarObjetoDocumentoProduto({
+					idproduto: row.idproduto,
+					descricao: row.descricao,
+					balanca: row.balanca,
+					precovariavel: row.precovariavel,
+					quantidade: row.quantidade,
+					preco: row.preco,
+					descontounitario: row.descontounitario,
+					totaldesconto: row.totaldesconto,
+					acrescimounitario: row.acrescimounitario,
+					totalacrescimo: row.totalacrescimo,
+					totalproduto: row.totalproduto
+				}));
+			}
+
+			this.setState({
+				cpfcnpj: documento.cpfcnpj,
+				nomeorcamento: documento.nomeorcamento,
+				listaDocumentoProduto: listaDocumentoProduto
+			});
+		}catch(err){
+			defaultMessageBoxError(err);
+		}finally{
+			window.Loading.hide();
+		}
 	}
 
 	async carregarTemporario(){
@@ -764,6 +807,7 @@ export default class Venda extends React.Component {
 							aumentarQuantidade={this.aumentarQuantidade}
 							cancelarUltimaVenda={this.cancelarUltimaVenda}
 							cancelarVendaAtual={this.cancelarVendaAtual}
+							carregarOrcamento={this.carregarOrcamento}
 							reimprimirCupom={this.reimprimirCupom}
 							cpfcnpj={this.state.cpfcnpj}
 							diminuirQuantidade={this.diminuirQuantidade}

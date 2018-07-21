@@ -45,6 +45,7 @@ export default class VendaDetalhe extends React.Component {
 				<VendaDetalheCabecalho
 					cancelarUltimaVenda={this.props.cancelarUltimaVenda}
 					cancelarVendaAtual={this.props.cancelarVendaAtual}
+					carregarOrcamento={this.props.carregarOrcamento}
 					listaDocumentoProduto={this.props.listaDocumentoProduto}
 					operacao={this.props.operacao}
 					reimprimirCupom={this.props.reimprimirCupom}
@@ -76,6 +77,7 @@ class VendaDetalheCabecalho extends React.Component {
 
 		this.alternarOrcamento = this.alternarOrcamento.bind(this);
 		this.alternarVenda = this.alternarVenda.bind(this);
+		this.efetivarOrcamento = this.efetivarOrcamento.bind(this);
 		this.onClickDocument = this.onClickDocument.bind(this);
 		this.onClickIcon = this.onClickIcon.bind(this);
 
@@ -104,6 +106,18 @@ class VendaDetalheCabecalho extends React.Component {
 
 	componentWillUnmount(){
 		document.removeEventListener("click", this.onClickDocument);
+	}
+
+	efetivarOrcamento(){
+		window.InformarValor.show({
+			title: "Número do orçamento",
+			mask: "999999",
+			success: (value) => {
+				if(value.length > 0){
+					this.props.carregarOrcamento(value);
+				}
+			}
+		});
 	}
 
 	fecharOpcoes(){
@@ -155,7 +169,7 @@ class VendaDetalheCabecalho extends React.Component {
 							<ListItem onClick={this.props.reimprimirCupom}>Reimprimir cupom</ListItem>
 							<ListItem className={operacao !== "CU" ? "" : " d-none"} onClick={this.alternarVenda}>Alternar para venda</ListItem>
 							<ListItem className={operacao !== "OR" ? "" : " d-none"} onClick={this.alternarOrcamento}>Alternar para orçamento</ListItem>
-							<ListItem>Efetivar um orçamento</ListItem>
+							<ListItem onClick={this.efetivarOrcamento}>Efetivar um orçamento</ListItem>
 						</ListGroup>
 					</div>
 				</div>
@@ -266,10 +280,10 @@ class VendaDetalheRodape extends React.Component {
 		let totaldocumento = 0;
 
 		this.props.listaDocumentoProduto.forEach((documentoproduto) => {
-			totalquantidade += documentoproduto.quantidade;
-			totalbruto += documentoproduto.preco * documentoproduto.quantidade;
-			totaldesconto += documentoproduto.totaldesconto;
-			totaldocumento += documentoproduto.totalproduto;
+			totalquantidade += parseFloat(documentoproduto.quantidade);
+			totalbruto += parseFloat(documentoproduto.preco * documentoproduto.quantidade);
+			totaldesconto += parseFloat(documentoproduto.totaldesconto);
+			totaldocumento += parseFloat(documentoproduto.totalproduto);
 		});
 
 		return (

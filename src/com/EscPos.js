@@ -120,13 +120,9 @@ export default class EscPos {
 	text(text, bold){
 		text = text.removeSpecial();
 		text = text.replaceAll("|", String.fromCharCode(179));
-		if(bold){
-			this.bold(true);
-		}
+		if(bold) this.bold(true);
 		this.content.push(text + LF);
-		if(bold){
-			this.bold(false);
-		}
+		if(bold) this.bold(false);
 	}
 
 }

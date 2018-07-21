@@ -148,8 +148,8 @@ export default class SAT {
 			children: {
 				"CNPJ": paramDesenvolvedoraCNPJ.removeFormat(),
 				"signAC": paramDesenvolvedoraAssinatura,
-				"numeroCaixa": paramSATCaixa.lpad(3, "0"),
-				"tpAmb": paramSATAmbiente
+				"numeroCaixa": paramSATCaixa.lpad(3, "0")
+				//"tpAmb": paramSATAmbiente
 			}
 		};
 
@@ -183,12 +183,12 @@ export default class SAT {
 				{name: "CFOP", text: documentoproduto.cfop.removeFormat()},
 				{name: "uCom", text: (documentoproduto.balanca === "S" ? "KG" : "UN")},
 				{name: "qCom", text: documentoproduto.quantidade.format(4, ".", "")},
-				{name: "vUncom", text: documentoproduto.preco},
+				{name: "vUnCom", text: documentoproduto.preco},
 				{name: "indRegra", text: "T"},
 				{name: "vDesc", text: documentoproduto.totaldesconto},
 				{name: "vOutro", text: documentoproduto.totalacrescimo}
 			];
-			if(documentoproduto.cest.length > 0){
+			if(documentoproduto.cest !== null && documentoproduto.cest.length > 0){
 				prod.push({
 					name: "obsFiscoDet",
 					attrs: {"xCampoDet": "Cod. CEST"},

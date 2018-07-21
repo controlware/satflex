@@ -33,6 +33,7 @@ export default class PainelRapidoPesquisa extends React.Component {
 			"FROM produto",
 			"INNER JOIN categoria USING (idcategoria)",
 			"WHERE produto.descricao ILIKE '%'||$1||'%'",
+			"  OR produto.codigoean = $1",
 			"ORDER BY descricao"
 		].join(" ");
 

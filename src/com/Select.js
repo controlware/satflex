@@ -14,15 +14,17 @@ export default class Select extends React.Component {
 
 		this.state = {
 			options: (props.options === undefined ? [] : props.options),
-			value: props.value
+			value: (props.value === undefined ? "" : props.value)
 		};
 
 		this.getDBOptions = this.getDBOptions.bind(this);
 		this.onChange = this.onChange.bind(this);
+		this.verifyComponentId = this.verifyComponentId.bind(this);
 	}
 
 	componentDidMount(){
 		this.element = ReactDOM.findDOMNode(this);
+		this.verifyComponentId();
 		this.getDBOptions();
 	}
 
@@ -93,6 +95,15 @@ export default class Select extends React.Component {
 		}
 	}
 
+	verifyComponentId(){
+		if(this.props.id){
+			let input = $("[name='" + this.props.id + "']");
+			if(input.length > 0){
+				input.attr("id", $(input).attr("name"));
+			}
+		}
+	}
+
 	render(){
 		// Captura as opcoes enviadas
 		var options = this.state.options;
@@ -119,12 +130,14 @@ export default class Select extends React.Component {
 			<ReactSelect
 				clearable={false}
 				disabled={this.props.disabled}
-				if={this.props.id}
+				id={this.props.id}
+				name={this.props.id}
 				onChange={this.onChange}
+				onInputChange={this.verifyComponentId}
 				options={options}
 				placeholder=""
 				searchable={false}
-				value={this.state.value}
+				value={(this.state.value ? this.state.value : this.props.defaultValue)}
 			/>
 		);
 	}
