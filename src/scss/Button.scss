@@ -118,6 +118,8 @@
 }
 
 .btn:disabled {
+	color: #eee;
 	filter: grayscale(100%);
+	text-shadow: none;
 	-webkit-filter: grayscale(100%);
 }

@@ -12,6 +12,15 @@ export function currentTimestamp(){
 	return localISOTimestamp;
 };
 
+// Calcula quantas casas deve usar para formatar um valor referente a quantidade
+export function decimaisQuantidade(quantidade){
+	let decimal = String(quantidade).split(".")[1];
+	if(decimal === undefined || decimal.length === 0 || parseInt(decimal, 10) === 0){
+		return 0;
+	}else{
+		return 3;
+	}
+}
 
 export function defaultMessageBoxError(text){
 	window.MessageBox.show({
