@@ -14,6 +14,12 @@ Number.prototype.format = function(c, d, t){
 	return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 };
 
+// Tranforma uma string em um numero
+// (nessa caso eh apenas para evitar erro quando a variavel ja for float)
+Number.prototype.toFloat = function(){
+	return this;
+}
+
 // Retorna um array com o codigo de cada caracter do texto
 String.prototype.byteList = function(text){
 	return text.split("").map(function(c){

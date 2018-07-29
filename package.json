@@ -2,7 +2,7 @@
 	"name": "SAT-Flex",
 	"author": "Murilo Strohmeier Feres",
 	"description": "A solução fácil que atende a Legislação Fiscal SAT.",
-	"version": "2.0.42",
+	"version": "2.0.43",
 	"dependencies": {
 		"ajv": "^6.3.0",
 		"ajv-keywords": "^3.1.0",
@@ -20,6 +20,7 @@
 		"jsontoxml": "^1.0.0",
 		"node-unzip-2": "^0.2.7",
 		"node-xlsx": "^0.12.1",
+		"node-zip": "^1.1.1",
 		"nodemailer": "^4.6.4",
 		"pg": "^7.4.1",
 		"pg-native": "^2.2.0",

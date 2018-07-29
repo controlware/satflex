@@ -1,5 +1,6 @@
 export function applicationDirectory(){
-	return window.require("electron").remote.app.getAppPath();
+	//return window.require("electron").remote.app.getAppPath();
+	return window.require("path").resolve();
 }
 
 export function currentDate(){
@@ -22,7 +23,16 @@ export function decimaisQuantidade(quantidade){
 	}
 }
 
-export function defaultMessageBoxError(text){
+export function defaultMessageBoxError(err){
+	let text = null;
+	if(typeof err === undefined || typeof err === null){
+		text = "Erro não identificado.";
+	}else if(typeof err === "string"){
+		text = err;
+	}else{
+		text = err.message;
+		console.log(err.stack);
+	}
 	window.MessageBox.show({
 		title: "Houve uma falha",
 		text: text
