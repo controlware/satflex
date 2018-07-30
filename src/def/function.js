@@ -1,6 +1,12 @@
 export function applicationDirectory(){
 	//return window.require("electron").remote.app.getAppPath();
-	return window.require("path").resolve();
+
+	let os = window.require("os");
+	if(os.platform() === "win32"){
+		return "C:/SAT-Flex/resources/app/";
+	}else{
+		return window.require("path").resolve();
+	}
 }
 
 export function currentDate(){
