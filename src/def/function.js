@@ -25,7 +25,7 @@ export function decimaisQuantidade(quantidade){
 
 export function defaultMessageBoxError(err){
 	let text = null;
-	if(typeof err === undefined || typeof err === null){
+	if(err === undefined || err === null){
 		text = "Erro não identificado.";
 	}else if(typeof err === "string"){
 		text = err;
