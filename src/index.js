@@ -64,6 +64,7 @@ class App extends React.Component {
 
 	onKeyDown(e){
 		if(e.ctrlKey && e.keyCode === 73){
+			let electron = window.require("electron");
 			electron.remote.getCurrentWebContents().toggleDevTools();
 		}
 	}
