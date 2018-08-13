@@ -55,6 +55,17 @@ class App extends React.Component {
 
 	componentDidMount(){
 		this.processoAutomatico.iniciar();
+		window.addEventListener("keydown", this.onKeyDown);
+	}
+
+	componentWillUnmount(){
+        window.removeEventListener("keydown", this.onKeyDown);
+    }
+
+	onKeyDown(e){
+		if(e.ctrlKey && e.keyCode === 73){
+			electron.remote.getCurrentWebContents().toggleDevTools();
+		}
 	}
 
 	render(){
