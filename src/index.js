@@ -78,6 +78,8 @@ class App extends React.Component {
 							<Menu />
 							<div id="viewContainer">
 								<Route exact path="/" component={Venda} />
+								<Route exact path="/venda" component={Venda} />
+								<Route exact path="/venda/:id" component={Venda} />
 								<Route path="/categoria" component={Categoria} />
 								<Route path="/configuracao" component={Configuracoes} />
 								<Route path="/contador" component={Contador} />
