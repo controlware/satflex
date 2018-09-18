@@ -6,6 +6,7 @@
 .env.test.local
 .env.production.local
 
+.cache
 .sass-cache
 
 npm-debug.log*
@@ -14,8 +15,6 @@ yarn-error.log*
 
 /src/com
 /src/view
-
-/node_modules/.cache
 
 /node_modules/electron
 /node_modules/electron-packager
