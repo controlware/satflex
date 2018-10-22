@@ -24,6 +24,8 @@ import RelOrcamento from "./view/RelOrcamento.js";
 import Suporte from "./view/Suporte.js";
 import Venda from "./view/Venda.js";
 
+import { valorParametro } from "./def/function.js";
+
 import ProcessoAutomatico from "./com/ProcessoAutomatico.js";
 
 import "./css/index.css";
@@ -56,6 +58,8 @@ class App extends React.Component {
 	componentDidMount(){
 		this.processoAutomatico.iniciar();
 		window.addEventListener("keydown", this.onKeyDown);
+
+		this.verificarTerminal();
 	}
 
 	componentWillUnmount(){
@@ -66,6 +70,45 @@ class App extends React.Component {
 		if(e.ctrlKey && e.keyCode === 73){
 			let electron = window.require("electron");
 			electron.remote.getCurrentWebContents().toggleDevTools();
+		}
+	}
+
+	async verificarTerminal(){
+		let status = await valorParametro(this.Pool, "SISTEMA", "STATUS");
+		let telefone = await valorParametro(this.Pool, "REVENDA", "TELEFONE");
+		switch(status){
+			case "0000": // Ativo
+				break;
+			case "0001": // Bloqueado
+				window.MessageBox.show({
+					title: "Terminal bloqueado",
+					text: "Seu terminal foi bloqueado, para mais informações, entre em contato com o suporte pelo número <b>" + telefone + "</b>.",
+					buttons: [
+						{
+							text: "Sair do SAT-Flex",
+							color: "primary",
+							onClick: function(){
+								window.close();
+							}
+						}
+					]
+				});
+				break;
+			case "0002": // Falta de comunicacao
+				window.MessageBox.show({
+					title: "Terminal bloqueado",
+					text: "Seu terminal foi bloqueado por falta de comunicação com a Internet. Verifique sua conexão com a Internet e tente novamente.<br> Caso o problema persista, entre em contato com o suporte pelo número <b>" + telefone + "</b>.",
+					buttons: [
+						{
+							text: "Sair do SAT-Flex",
+							color: "primary",
+							onClick: function(){
+								window.close();
+							}
+						}
+					]
+				});
+				break;
 		}
 	}
 
