@@ -150,6 +150,13 @@ export function validarCPF(cpf){
 
 export async function valorParametro(Pool, grupo, nome, callback){
 	let {rows} = await Pool.query("SELECT valor FROM parametro WHERE grupo = $1 AND nome = $2", [grupo, nome]);
+	if(rows.length === 0){
+		window.MessageBox.show({
+			title: "Banco de dados desatualizado",
+			text: "Seu banco de dados está desatualizado para trabalhar com o aplicativo atual.<br>Atualize o banco de dados para continuar."
+		});
+		return false;
+	}
 	let valor = rows[0].valor;
 	if(typeof callback === "function"){
 		callback(valor);
