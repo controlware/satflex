@@ -1,15 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import {HashRouter, Route} from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
 
 import "./lib/bootstrap-4.0.0/bootstrap.js";
 
 import Menu from "./com/Menu.js";
-import {FastMessageEmitter, FastMessageModal} from "./com/FastMessage.js";
-import {InformarValorEmitter, InformarValorModal} from "./com/InformarValor.js";
-import {LoadingEmitter, LoadingElement} from "./com/Loading.js";
-import {MessageBoxEmitter, MessageBoxModal} from "./com/MessageBox.js";
+import { FastMessageEmitter, FastMessageModal } from "./com/FastMessage.js";
+import { InformarValorEmitter, InformarValorModal } from "./com/InformarValor.js";
+import { LoadingEmitter, LoadingElement } from "./com/Loading.js";
+import { MessageBoxEmitter, MessageBoxModal } from "./com/MessageBox.js";
+import { Servidor } from "./com/Servidor.js";
 
 import Categoria from "./view/Categoria.js";
 import Configuracoes from "./view/Configuracoes.js";
@@ -53,6 +54,9 @@ class App extends React.Component {
 		this.Pool = new Pool();
 		this.processoAutomatico = new ProcessoAutomatico(this.Pool);
 		window.processoAutomatico = this.processoAutomatico;
+		
+		// Utilizado apenas para debug
+		window.servidor = new Servidor(this.Pool);
 	}
 
 	componentDidMount(){
