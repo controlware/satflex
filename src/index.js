@@ -10,7 +10,7 @@ import { FastMessageEmitter, FastMessageModal } from "./com/FastMessage.js";
 import { InformarValorEmitter, InformarValorModal } from "./com/InformarValor.js";
 import { LoadingEmitter, LoadingElement } from "./com/Loading.js";
 import { MessageBoxEmitter, MessageBoxModal } from "./com/MessageBox.js";
-import { Servidor } from "./com/Servidor.js";
+import Servidor from "./com/Servidor.js";
 
 import Categoria from "./view/Categoria.js";
 import Configuracoes from "./view/Configuracoes.js";
