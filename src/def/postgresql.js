@@ -1,9 +1,11 @@
+const pg = window.require("pg");
+
 export function Client(){
-	return window.require("pg").Client(Configuration());
+	return pg.Client(Configuration());
 }
 
 export function Pool(){
-	return window.require("pg").Pool(Configuration());
+	return new pg.Pool(Configuration());
 }
 
 function Configuration(){

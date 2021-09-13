@@ -1,11 +1,15 @@
-export function applicationDirectory(){
-	//return window.require("electron").remote.app.getAppPath();
+const fs = window.require("fs");
+const os = window.require("os");
+const path = window.require("path");
+const childProcess = window.require("child_process");
+const serialNumberFunc = window.require("serial-number");
+const isDev = window.require("electron-is-dev");
 
-	let os = window.require("os");
-	if(os.platform() === "win32"){
-		return "C:/SAT-Flex/resources/app/";
+export function applicationDirectory(){
+	if(isDev){
+		return path.resolve();
 	}else{
-		return window.require("path").resolve();
+		return "C:/SAT-Flex/resources/app/";
 	}
 }
 
@@ -46,16 +50,14 @@ export function defaultMessageBoxError(err){
 }
 
 export async function serialNumber(){
-	let os = window.require("os");
 	if(os.platform() === "win32"){
 		let command = "wmic diskdrive get SerialNumber";
-		let stdout = window.require("child_process").execSync(command).toString();
+		let stdout = childProcess.execSync(command).toString();
 		stdout = stdout.trim().split(" ").splice(-1)[0].trim();
 		return stdout;
 	}else{
 		return new Promise((resolve) => {
-			let serialNumber = window.require("serial-number");
-			serialNumber((err, value) => {
+			serialNumberFunc((err, value) => {
 				resolve(value);
 			});
 		});
@@ -67,7 +69,6 @@ export function sleep(ms){
 }
 
 export function temporaryDirectory(){
-	let os = window.require("os");
 	let dirname = os.homedir() + "/SAT-Flex/";
 	return dirname;
 }
@@ -165,8 +166,6 @@ export async function valorParametro(Pool, grupo, nome, callback){
 }
 
 export function writeTemporary(filename, content){
-	let fs = window.require("fs");
-
 	let dirname = temporaryDirectory();
 	if(!fs.existsSync(dirname)){
 		fs.mkdirSync(dirname);

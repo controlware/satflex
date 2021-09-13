@@ -32,7 +32,7 @@ import ProcessoAutomatico from "./com/ProcessoAutomatico.js";
 import "./css/index.css";
 import "./font/gotham/gotham.css";
 
-import {Pool} from "./def/postgresql.js";
+import { Pool } from "./def/postgresql.js";
 
 class App extends React.Component {
 
@@ -72,7 +72,7 @@ class App extends React.Component {
 
 	onKeyDown(e){
 		if(e.ctrlKey && e.keyCode === 73){
-			let electron = window.require("electron");
+			const electron = window.require('electron');
 			electron.remote.getCurrentWebContents().toggleDevTools();
 		}
 	}
