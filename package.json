@@ -22,7 +22,7 @@
     "node-unzip-2": "^0.2.7",
     "node-xlsx": "^0.12.1",
     "node-zip": "^1.1.1",
-    "nodemailer": "^4.6.4",
+    "nodemailer": "^6.4.16",
     "pg": "^7.4.1",
     "pg-native": "^2.2.0",
     "popper.js": "^1.14.1",
