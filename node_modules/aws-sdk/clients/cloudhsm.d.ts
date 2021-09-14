@@ -3,7 +3,7 @@ import {Response} from '../lib/response';
 import {AWSError} from '../lib/error';
 import {Service} from '../lib/service';
 import {ServiceConfigurationOptions} from '../lib/service';
-import {ConfigBase as Config} from '../lib/config';
+import {ConfigBase as Config} from '../lib/config-base';
 interface Blob {}
 declare class CloudHSM extends Service {
   /**
@@ -191,7 +191,6 @@ declare namespace CloudHSM {
      */
     Status: String;
   }
-  export type Boolean = boolean;
   export type Certificate = string;
   export type CertificateFingerprint = string;
   export type ClientArn = string;

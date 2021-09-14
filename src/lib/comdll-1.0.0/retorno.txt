@@ -1,1 +1,1 @@
-Erro: "Erro ao carregar a função: AssociarAssinatura na Biblioteca: "
+514376|06099||Erro desconhecido na emissao||

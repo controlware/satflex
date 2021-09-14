@@ -3,10 +3,9 @@ const os = window.require("os");
 const path = window.require("path");
 const childProcess = window.require("child_process");
 const serialNumberFunc = window.require("serial-number");
-const isDev = window.require("electron-is-dev");
 
 export function applicationDirectory(){
-	if(isDev){
+	if(isDev()){
 		return path.resolve();
 	}else{
 		return "C:/SAT-Flex/resources/app/";
@@ -47,6 +46,10 @@ export function defaultMessageBoxError(err){
 		title: "Houve uma falha",
 		text: text
 	});
+}
+
+export function isDev(){
+	return (process.env.NODE_ENV === 'development');
 }
 
 export async function serialNumber(){

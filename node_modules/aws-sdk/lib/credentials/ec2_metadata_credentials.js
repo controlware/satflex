@@ -20,6 +20,10 @@ require('../metadata_service');
  *   maxRetries: 10, // retry 10 times
  *   retryDelayOptions: { base: 200 } // see AWS.Config for information
  * });
+ *
+ * If your requests are timing out in connecting to the metadata service, such
+ * as when testing on a development machine, you can use the connectTimeout
+ * option, specified in milliseconds, which also defaults to 1 second.
  * ```
  *
  * @see AWS.Config.retryDelayOptions
@@ -35,7 +39,9 @@ AWS.EC2MetadataCredentials = AWS.util.inherit(AWS.Credentials, {
       {maxRetries: this.defaultMaxRetries}, options);
     if (!options.httpOptions) options.httpOptions = {};
     options.httpOptions = AWS.util.merge(
-      {timeout: this.defaultTimeout}, options.httpOptions);
+      {timeout: this.defaultTimeout,
+        connectTimeout: this.defaultConnectTimeout},
+       options.httpOptions);
 
     this.metadataService = new AWS.MetadataService(options);
     this.metadata = {};
@@ -45,6 +51,11 @@ AWS.EC2MetadataCredentials = AWS.util.inherit(AWS.Credentials, {
    * @api private
    */
   defaultTimeout: 1000,
+
+   /**
+   * @api private
+   */
+  defaultConnectTimeout: 1000,
 
   /**
    * @api private
@@ -63,17 +74,32 @@ AWS.EC2MetadataCredentials = AWS.util.inherit(AWS.Credentials, {
    * @see get
    */
   refresh: function refresh(callback) {
-    var self = this;
-    if (!callback) callback = function(err) { if (err) throw err; };
+    this.coalesceRefresh(callback || AWS.util.fn.callback);
+  },
 
-    self.metadataService.loadCredentials(function (err, creds) {
+  /**
+   * @api private
+   * @param callback
+   */
+  load: function load(callback) {
+    var self = this;
+    self.metadataService.loadCredentials(function(err, creds) {
       if (!err) {
-        self.expired = false;
-        self.metadata = creds;
-        self.accessKeyId = creds.AccessKeyId;
-        self.secretAccessKey = creds.SecretAccessKey;
-        self.sessionToken = creds.Token;
-        self.expireTime = new Date(creds.Expiration);
+        var currentTime = AWS.util.date.getDate();
+        var expireTime = new Date(creds.Expiration);
+        if (expireTime < currentTime) {
+          err = AWS.util.error(
+            new Error('EC2 Instance Metadata Serivce provided expired credentials'),
+            { code: 'EC2MetadataCredentialsProviderFailure' }
+          );
+        } else {
+          self.expired = false;
+          self.metadata = creds;
+          self.accessKeyId = creds.AccessKeyId;
+          self.secretAccessKey = creds.SecretAccessKey;
+          self.sessionToken = creds.Token;
+          self.expireTime = expireTime;
+        }
       }
       callback(err);
     });

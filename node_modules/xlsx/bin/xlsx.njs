@@ -4,6 +4,7 @@
 /* vim: set ts=2 ft=javascript: */
 var n = "xlsx";
 var X = require('../');
+try { X = require('../xlsx.flow'); } catch(e) {}
 require('exit-on-epipe');
 var fs = require('fs'), program = require('commander');
 program
@@ -137,6 +138,7 @@ if(program.all) {
 	opts.sheetStubs = true;
 	opts.cellDates = true;
 	wopts.cellStyles = true;
+	wopts.sheetStubs = true;
 	wopts.bookVBA = true;
 }
 if(program.sparse) opts.dense = false; else opts.dense = true;
@@ -165,26 +167,26 @@ if(program.dump) {
 	process.exit(0);
 }
 if(program.props) {
-	dump_props(wb);
+	if(wb) dump_props(wb);
 	process.exit(0);
 }
 
 /* full workbook formats */
 workbook_formats.forEach(function(m) { if(program[m[0]] || isfmt(m[0])) {
 		wopts.bookType = m[1];
-		X.writeFile(wb, program.output || sheetname || ((filename || "") + "." + m[2]), wopts);
+		if(wb) X.writeFile(wb, program.output || sheetname || ((filename || "") + "." + m[2]), wopts);
 		process.exit(0);
 } });
 
 wb_formats_2.forEach(function(m) { if(program[m[0]] || isfmt(m[0])) {
 		wopts.bookType = m[1];
-		X.writeFile(wb, program.output || sheetname || ((filename || "") + "." + m[2]), wopts);
+		if(wb) X.writeFile(wb, program.output || sheetname || ((filename || "") + "." + m[2]), wopts);
 		process.exit(0);
 } });
 
 var target_sheet = sheetname || '';
 if(target_sheet === '') {
-	if(program.sheetIndex < (wb.SheetNames||[]).length) target_sheet = wb.SheetNames[program.sheetIndex];
+	if(+program.sheetIndex < (wb.SheetNames||[]).length) target_sheet = wb.SheetNames[+program.sheetIndex];
 	else target_sheet = (wb.SheetNames||[""])[0];
 }
 
@@ -261,21 +263,21 @@ switch(true) {
 		break;
 }
 
-function dump_props(wb) {
+function dump_props(wb/*:Workbook*/) {
 	var propaoa = [];
 	if(Object.assign && Object.entries) propaoa = Object.entries(Object.assign({}, wb.Props, wb.Custprops));
 	else {
-		var Keys, pi;
+		var Keys/*:: :Array<string> = []*/, pi;
 		if(wb.Props) {
 			Keys = Object.keys(wb.Props);
 			for(pi = 0; pi < Keys.length; ++pi) {
-				if(Keys.hasOwnProperty(Keys[pi])) propaoa.push([Keys[pi], Keys[Keys[pi]]]);
+				if(Object.prototype.hasOwnProperty.call(Keys, Keys[pi])) propaoa.push([Keys[pi], Keys[/*::+*/Keys[pi]]]);
 			}
 		}
 		if(wb.Custprops) {
 			Keys = Object.keys(wb.Custprops);
 			for(pi = 0; pi < Keys.length; ++pi) {
-				if(Keys.hasOwnProperty(Keys[pi])) propaoa.push([Keys[pi], Keys[Keys[pi]]]);
+				if(Object.prototype.hasOwnProperty.call(Keys, Keys[pi])) propaoa.push([Keys[pi], Keys[/*::+*/Keys[pi]]]);
 			}
 		}
 	}

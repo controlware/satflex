@@ -3,7 +3,7 @@ import {Response} from '../lib/response';
 import {AWSError} from '../lib/error';
 import {Service} from '../lib/service';
 import {ServiceConfigurationOptions} from '../lib/service';
-import {ConfigBase as Config} from '../lib/config';
+import {ConfigBase as Config} from '../lib/config-base';
 interface Blob {}
 declare class MarketplaceEntitlementService extends Service {
   /**
@@ -64,7 +64,6 @@ declare namespace MarketplaceEntitlementService {
      */
     StringValue?: String;
   }
-  export type ErrorMessage = string;
   export type FilterValue = string;
   export type FilterValueList = FilterValue[];
   export type GetEntitlementFilterName = "CUSTOMER_IDENTIFIER"|"DIMENSION"|string;

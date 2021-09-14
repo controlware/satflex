@@ -3,7 +3,7 @@ import {Response} from '../lib/response';
 import {AWSError} from '../lib/error';
 import {Service} from '../lib/service';
 import {ServiceConfigurationOptions} from '../lib/service';
-import {ConfigBase as Config} from '../lib/config';
+import {ConfigBase as Config} from '../lib/config-base';
 interface Blob {}
 declare class Mobile extends Service {
   /**
@@ -171,7 +171,6 @@ declare namespace Mobile {
     details?: ProjectDetails;
   }
   export type DownloadUrl = string;
-  export type ErrorMessage = string;
   export interface ExportBundleRequest {
     /**
      *  Unique bundle identifier. 
