@@ -157,7 +157,7 @@ export async function valorParametro(Pool, grupo, nome, callback){
 	if(rows.length === 0){
 		window.MessageBox.show({
 			title: "Banco de dados desatualizado",
-			text: "Seu banco de dados está desatualizado para trabalhar com o aplicativo atual.<br>Atualize o banco de dados para continuar."
+			text: `Seu banco de dados está desatualizado para trabalhar com o aplicativo atual.<br>Atualize o banco de dados para continuar.<br>(Parâmetro não encontrado: ${grupo}, ${nome})`
 		});
 		return false;
 	}

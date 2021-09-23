@@ -2,7 +2,7 @@
   "name": "satflex",
   "author": "Murilo Strohmeier Feres",
   "description": "A solução fácil que atende a Legislação Fiscal SAT.",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "license": "BSD-3-Clause",
   "dependencies": {
     "@electron/remote": "^2.0.0",
