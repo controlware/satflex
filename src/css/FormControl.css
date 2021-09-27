@@ -1,4 +1,3 @@
-@charset "UTF-8";
 .form-control, .Select-control {
   border: 1px solid #999;
   border-radius: 3px;
@@ -28,7 +27,10 @@
   height: 64px !important;
 }
 
-.Select .Select-menu-outer {
+.Select .Select__value-container {
+  height: 52px;
+}
+.Select .Select__menu {
   background-color: #fff;
   border: 1px solid #999;
   border-radius: 3px;
@@ -36,37 +38,28 @@
   width: calc(100% - 30px);
   z-index: 1;
 }
-.Select .Select-menu-outer .Select-option {
+.Select .Select__menu .Select__option {
+  color: #222;
   background-color: #fff;
   padding: 12px;
 }
-.Select .Select-menu-outer .Select-option.is-focused {
+.Select .Select__menu .Select__option.is-focused {
   background-color: #eee;
 }
-.Select .Select-menu-outer .Select-option.is-selected {
+.Select .Select__menu .Select__option.is-selected {
   background-color: #ddd;
 }
-.Select .Select-menu-outer .Select-option:first-of-type {
+.Select .Select__menu .Select__option:first-of-type {
   border-radius: 3px;
 }
-.Select .Select-menu-outer .Select-option:last-of-type {
+.Select .Select__menu .Select__option:last-of-type {
   border-radius: 3px;
 }
-.Select .Select-menu-outer .Select-noresults {
+.Select .Select__menu .Select__noresults {
   background-color: #fff;
   border-radius: 3px;
   color: #aaa;
   padding: 12px;
-}
-.Select::after {
-  content: "▼";
-  color: #444;
-  font-size: 14px;
-  font-weight: bold;
-  pointer-events: none;
-  position: absolute;
-  right: 30px;
-  top: 42px;
 }
 
 .form-check input {
