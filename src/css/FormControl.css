@@ -63,6 +63,7 @@
 }
 
 .form-check input {
+  margin-left: -10px;
   position: relative;
   top: -2px;
   zoom: 2.2;
