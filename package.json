@@ -58,7 +58,7 @@
   "main": "public/electron.js",
   "homepage": "./",
   "devDependencies": {
-    "electron": "^14.0.1",
+    "electron": "^14.2.4",
     "electron-packager": "^15.4.0",
     "electron-rebuild": "^3.2.3"
   },
