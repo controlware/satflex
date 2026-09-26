@@ -47,7 +47,8 @@
     "xml-js": "^1.6.11"
   },
   "scripts": {
-    "postinstall": "git config core.hooksPath .githooks && chmod +x .githooks/*"
+    "build": "node canary.js && tsc",
+    "prepare": "node canary.js"
   },
   "main": "public/electron.js",
   "homepage": "./",
