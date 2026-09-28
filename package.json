@@ -1,8 +1,8 @@
 {
-  "name": "project",
+  "name": "satflex",
   "author": "Murilo Strohmeier Feres",
   "description": "A solução fácil que atende a Legislação Fiscal SAT.",
-  "version": "1.0.0",
+  "version": "2.6.8",
   "license": "BSD-3-Clause",
   "dependencies": {
     "@electron/remote": "^2.0.0",
@@ -47,8 +47,13 @@
     "xml-js": "^1.6.11"
   },
   "scripts": {
-    "build": "node canary.js && tsc",
-    "prepare": "node canary.js"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron-dev": "set APP_DEV = true && npx concurrently \"yarn start\" \"npx wait-on http://localhost:3000 && npx electron .\"",
+    "electron-pack": "build --em.main=build/electron.js --mac",
+    "preelectron-pack": "yarn build"
   },
   "main": "public/electron.js",
   "homepage": "./",
